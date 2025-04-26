@@ -1,0 +1,93 @@
+// Authentication pages common styles
+
+// Variables
+$bg-gradient: linear-gradient(
+  315deg,
+  rgba(0, 50, 100, 0.95) 0%,
+  rgba(0, 75, 125, 0.95) 25%,
+  rgba(0, 100, 150, 0.95) 50%,
+  rgba(0, 75, 125, 0.95) 75%,
+  rgba(0, 50, 100, 0.95) 100%
+);
+$wave-base-color: rgb(255 255 255 / 25%);
+
+.no-decoration {
+  text-decoration: none;
+}
+
+// Animated background
+.bg-animated {
+  overflow: auto;
+  background: $bg-gradient;
+  animation: gradient 15s ease infinite;
+  background-size: 400% 400%;
+  background-attachment: fixed;
+}
+
+// Wave effects
+.wave {
+  background: $wave-base-color;
+  border-radius: 1000% 1000% 0 0;
+  position: fixed;
+  width: 200%;
+  height: 12em;
+  transform: translate3d(0, 0, 0);
+  opacity: 0.8;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  animation: wave 10s -3s linear infinite;
+
+  &:nth-of-type(2) {
+    bottom: -1.25em;
+    animation: wave 18s linear reverse infinite;
+  }
+
+  &:nth-of-type(3) {
+    bottom: -2.5em;
+    opacity: 0.9;
+    animation: wave 20s -1s reverse infinite;
+  }
+}
+
+// Form input styling
+.custom-input {
+  :deep(.q-field__control) {
+    height: 54px;
+    border-radius: 8px;
+    border: 1px solid #edf1f3;
+  }
+
+  :deep(.q-field__native) {
+    padding-left: 4px;
+  }
+}
+
+// Animations
+@keyframes gradient {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes wave {
+  2% {
+    transform: translateX(1px);
+  }
+  25% {
+    transform: translateX(-25%);
+  }
+  50% {
+    transform: translateX(-50%);
+  }
+  75% {
+    transform: translateX(-25%);
+  }
+  100% {
+    transform: translateX(1px);
+  }
+}

@@ -5,3 +5,13 @@
 .bg-white {
   background: #fff !important;
 }
+
+// Text utilities
+.text {
+  &-white-7 {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  &-body2 {
+    font-size: 14px;
+  }
+}
