@@ -115,10 +115,13 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { supabase } from 'src/boot/supabase';
+import { useAuthStore } from 'src/stores/auth-store';
+import { useHouseholdStore } from 'src/stores/household-store';
 
 const $q = useQuasar();
 const router = useRouter();
+const authStore = useAuthStore();
+const householdStore = useHouseholdStore();
 
 const email = ref('');
 const password = ref('');
@@ -137,15 +140,22 @@ const handleSubmit = async () => {
 
   try {
     loading.value = true;
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.value,
-      password: password.value,
-    });
 
-    if (error) throw error;
+    // Login with auth store
+    const { error } = await authStore.login(email.value, password.value);
+
+    if (error) throw error as Error;
+
+    // Fetch household data
+    await householdStore.fetchUserHousehold();
 
     // Redirect to dashboard on successful login
     await router.push('/');
+
+    $q.notify({
+      type: 'positive',
+      message: 'Login successful!',
+    });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An error occurred during login';
     $q.notify({

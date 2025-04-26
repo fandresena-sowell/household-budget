@@ -4,7 +4,7 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 
 ## Last Updated
 
-2025-04-26
+2025-04-28
 
 ## Implementation Status
 
@@ -18,15 +18,16 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 | 1.5                                                 | Populate Default Data                    | Done        | Account types populated                 |
 | 1.6                                                 | Enable Row Level Security                | Done        | RLS enabled with appropriate policies   |
 | 1.7                                                 | Create Database Functions                | Done        | Account balance and household creation  |
+| 1.8                                                 | Implement Single Household Approach      | Done        | All users share one household           |
 | **Phase 2: Authentication & Core UI Structure**     |
 | 2.1                                                 | Create Authentication Pages              | Done        |                                         |
-| 2.2                                                 | Implement Registration Logic             | Not Started |                                         |
-| 2.3                                                 | Implement Household Creation             | Not Started | Auto-create household on registration   |
-| 2.4                                                 | Implement Login Logic                    | Not Started |                                         |
-| 2.5                                                 | Set Up Pinia Auth Store                  | Not Started |                                         |
-| 2.6                                                 | Set Up Pinia Household Store             | Not Started |                                         |
-| 2.7                                                 | Create Main Application Layout           | Not Started |                                         |
-| 2.8                                                 | Implement Route Guards                   | Not Started |                                         |
+| 2.2                                                 | Implement Registration Logic             | Done        | Using Pinia auth store                  |
+| 2.3                                                 | Implement Household Creation             | Done        | Auto-create or join existing household  |
+| 2.4                                                 | Implement Login Logic                    | Done        | Using Pinia auth store                  |
+| 2.5                                                 | Set Up Pinia Auth Store                  | Done        | With login, register & auth checking    |
+| 2.6                                                 | Set Up Pinia Household Store             | Done        | With household and member functions     |
+| 2.7                                                 | Create Main Application Layout           | Done        | With navigation menu & logout button    |
+| 2.8                                                 | Implement Route Guards                   | Done        | Protecting authenticated routes         |
 | **Phase 3: Account Management**                     |
 | 3.1                                                 | Create Account List Component            | Not Started | Show household accounts                 |
 | 3.2                                                 | Create Add/Edit Account Form             | Not Started |                                         |
@@ -52,6 +53,14 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 | 6.3                                                 | Implement Member Removal                 | Not Started |                                         |
 | 6.4                                                 | Add Creator Information to UI            | Not Started |                                         |
 | 6.5                                                 | Implement Basic Activity Log             | Not Started |                                         |
+
+## MVP Architecture Changes
+
+We've made the following architecture changes to simplify the MVP:
+
+1. **Single Household Approach**: Implemented a system where all users share one household. The first user to register becomes the owner, and all subsequent users become members of that household.
+2. **Simplified User Onboarding**: All new users automatically join the existing household, eliminating the need for household selection or switching in the MVP.
+3. **Created `fn_ensure_user_in_household` function**: This new database function handles the logic of ensuring a user is part of the household, either by joining an existing one or creating a new one if none exists.
 
 ## Test Data
 
@@ -83,4 +92,4 @@ A set of test data has been created to verify functionality:
 
 ## Next Steps
 
-- Begin implementation of Phase 2 (Authentication & Core UI Structure)
+- Begin implementation of Phase 3 (Account Management)

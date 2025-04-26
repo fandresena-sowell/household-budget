@@ -29,6 +29,8 @@
               class="custom-input"
               bg-color="white"
               dense
+              :error="!!errors.firstName"
+              :error-message="errors.firstName"
             />
           </div>
 
@@ -42,6 +44,8 @@
               class="custom-input"
               bg-color="white"
               dense
+              :error="!!errors.lastName"
+              :error-message="errors.lastName"
             />
           </div>
 
@@ -55,19 +59,8 @@
               class="custom-input"
               bg-color="white"
               dense
-            />
-          </div>
-
-          <!-- Birth Date field -->
-          <div class="input-field">
-            <label class="field-label">Birth Date</label>
-            <q-input
-              v-model="birthDate"
-              filled
-              type="date"
-              class="custom-input"
-              bg-color="white"
-              dense
+              :error="!!errors.email"
+              :error-message="errors.email"
             />
           </div>
 
@@ -81,6 +74,8 @@
               class="custom-input"
               bg-color="white"
               dense
+              :error="!!errors.password"
+              :error-message="errors.password"
             >
               <template v-slot:append>
                 <q-icon
@@ -103,6 +98,8 @@
               class="custom-input"
               bg-color="white"
               dense
+              :error="!!errors.passwordConfirm"
+              :error-message="errors.passwordConfirm"
             >
               <template v-slot:append>
                 <q-icon
@@ -117,11 +114,20 @@
 
           <!-- Terms acceptance -->
           <div class="terms-acceptance">
-            <q-checkbox v-model="acceptTerms" color="grey" size="xs" dense />
+            <q-checkbox
+              v-model="acceptTerms"
+              color="grey"
+              size="xs"
+              dense
+              :error="!!errors.acceptTerms"
+            />
             <span
               >I agree to the <span class="terms-link">Terms of Service</span> and
               <span class="terms-link">Data Processing Agreement</span></span
             >
+          </div>
+          <div v-if="errors.acceptTerms" class="error-message">
+            {{ errors.acceptTerms }}
           </div>
 
           <!-- Register button -->
@@ -168,79 +174,125 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { supabase } from 'src/boot/supabase';
+import { useAuthStore } from 'src/stores/auth-store';
+import { useHouseholdStore } from 'src/stores/household-store';
+import { z } from 'zod';
 
 const $q = useQuasar();
 const router = useRouter();
+const authStore = useAuthStore();
+const householdStore = useHouseholdStore();
 
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
-const birthDate = ref('');
 const password = ref('');
 const passwordConfirm = ref('');
 const acceptTerms = ref(false);
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 const loading = ref(false);
+const errors = ref<Record<string, string>>({});
+
+// Define the validation schema
+const schema = z
+  .object({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    email: z.string().min(1, 'Email is required').email('Invalid email format'),
+    password: z
+      .string()
+      .min(1, 'Password is required')
+      .min(8, 'Password must be at least 8 characters'),
+    passwordConfirm: z.string().min(1, 'Please confirm your password'),
+    acceptTerms: z.literal(true, {
+      errorMap: () => ({ message: 'You must accept the terms of service' }),
+    }),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: 'Passwords do not match',
+    path: ['passwordConfirm'],
+  });
+
+const validate = () => {
+  const result = schema.safeParse({
+    firstName: firstName.value,
+    lastName: lastName.value,
+    email: email.value,
+    password: password.value,
+    passwordConfirm: passwordConfirm.value,
+    acceptTerms: acceptTerms.value,
+  });
+
+  // Reset errors
+  errors.value = {};
+
+  if (!result.success) {
+    // Format and set errors
+    const formattedErrors = result.error.format();
+
+    // Handle string errors
+    Object.entries(formattedErrors).forEach(([key, value]) => {
+      if (
+        key !== '_errors' &&
+        typeof value === 'object' &&
+        '_errors' in value &&
+        value._errors.length
+      ) {
+        errors.value[key] = value._errors[0] ?? '';
+      }
+    });
+
+    return false;
+  }
+
+  return true;
+};
 
 const handleSubmit = async () => {
-  // Validate form fields
-  if (
-    !firstName.value ||
-    !lastName.value ||
-    !email.value ||
-    !birthDate.value ||
-    !password.value ||
-    !passwordConfirm.value
-  ) {
-    $q.notify({
-      type: 'negative',
-      message: 'Please fill in all required fields',
-    });
-    return;
-  }
+  // Validate form using Zod
+  const isValid = validate();
 
-  if (password.value !== passwordConfirm.value) {
-    $q.notify({
-      type: 'negative',
-      message: 'Passwords do not match',
-    });
-    return;
-  }
-
-  if (!acceptTerms.value) {
-    $q.notify({
-      type: 'negative',
-      message: 'You must accept the terms of service',
-    });
+  if (!isValid) {
     return;
   }
 
   try {
     loading.value = true;
 
-    const { error } = await supabase.auth.signUp({
-      email: email.value,
-      password: password.value,
-      options: {
-        data: {
-          first_name: firstName.value,
-          last_name: lastName.value,
-          birth_date: birthDate.value,
-        },
-      },
+    // Register the user using the auth store
+    const { error } = await authStore.register(email.value, password.value, {
+      first_name: firstName.value,
+      last_name: lastName.value,
     });
 
-    if (error) throw error;
+    if (error) throw error as Error;
+
+    // Sign in with the newly created credentials
+    const { error: loginError } = await authStore.login(email.value, password.value);
+
+    if (loginError) throw loginError as Error;
+
+    // Create a default household for the user
+    if (authStore.userId) {
+      const { error: householdError } = await householdStore.ensureUserInHousehold(
+        authStore.userId,
+        firstName.value,
+      );
+
+      if (householdError) {
+        console.error('Error ensuring user in household:', householdError);
+        // Continue even if household process fails - we can retry later
+      }
+    }
 
     $q.notify({
       type: 'positive',
-      message: 'Registration successful! Check your email to confirm your account.',
+      message: 'Registration successful! Welcome to the app.',
     });
 
-    // Redirect to login page
-    await router.push('/login');
+    // Redirect to dashboard
+    await router.push('/');
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : 'An error occurred during registration';
@@ -388,7 +440,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
 .terms-acceptance span {
@@ -404,6 +456,13 @@ const handleSubmit = async () => {
   font-weight: 600;
 }
 
+.error-message {
+  color: #c10015;
+  font-size: 12px;
+  margin-bottom: 16px;
+  margin-top: -4px;
+}
+
 /* Button styles */
 .register-btn {
   width: 100%;
@@ -412,6 +471,7 @@ const handleSubmit = async () => {
   font-weight: 500;
   font-size: 14px;
   margin-bottom: 24px;
+  margin-top: 8px;
   box-shadow:
     0px 0px 0px 1px rgba(55, 93, 251, 1),
     0px 1px 2px 0px rgba(37, 62, 167, 0.48);

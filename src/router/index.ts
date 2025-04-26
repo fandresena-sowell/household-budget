@@ -6,6 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
+import { useAuthStore } from 'src/stores/auth-store';
 
 /*
  * If not building with SSR mode, you can
@@ -19,7 +20,9 @@ import routes from './routes';
 export default defineRouter(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
-    : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
+    : process.env.VUE_ROUTER_MODE === 'history'
+      ? createWebHistory
+      : createWebHashHistory;
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
@@ -29,6 +32,29 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
+  });
+
+  // Navigation guards
+  Router.beforeEach(async (to, from, next) => {
+    const authStore = useAuthStore();
+
+    // Check authentication status
+    await authStore.checkAuth();
+
+    // Auth is required for all routes except login, register, forgot-password, etc.
+    const isAuthRoute =
+      to.path === '/login' || to.path === '/register' || to.path.startsWith('/reset-password');
+
+    if (!authStore.isAuthenticated && !isAuthRoute) {
+      // If not authenticated and trying to access protected route, redirect to login
+      next('/login');
+    } else if (authStore.isAuthenticated && isAuthRoute) {
+      // If authenticated and trying to access auth routes, redirect to home
+      next('/');
+    } else {
+      // Otherwise, allow navigation
+      next();
+    }
   });
 
   return Router;
