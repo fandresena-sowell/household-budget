@@ -127,10 +127,22 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 All user data tables (`accounts`, `categories`, `transactions`) have RLS enabled with the following policies:
 
-1. Users can `SELECT` only their own records
-2. Users can `INSERT` records only with their own user_id
-3. Users can `UPDATE` only their own records
-4. Users can `DELETE` only their own records
+1. Users can `SELECT` only their own records (those belonging to households they are members of)
+2. Users can `INSERT` records only with their own user_id and for households they are members of
+3. Users can `UPDATE` only records for households they are members of
+4. Users can `DELETE` only records for households they are owners of
+
+## Implementation Notes
+
+### Phase 1 Implementation Details
+
+The database schema has been fully implemented in Supabase, including:
+
+1. All tables created with appropriate constraints and relationships
+2. Default account types added (Cash, Credit Card, Bank Deposit, Loan)
+3. Database functions implemented for account balance calculations and household creation
+4. Row Level Security (RLS) enabled on all tables with appropriate policies to ensure data security and privacy
+5. Unique constraints and foreign key relationships established for data integrity
 
 ## Frontend Architecture
 

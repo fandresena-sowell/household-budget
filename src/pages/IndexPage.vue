@@ -10,34 +10,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import type { Todo, Meta } from 'components/models';
 import ExampleComponent from 'components/ExampleComponent.vue';
 
-const todos = ref<Todo[]>([
-  {
-    id: 1,
-    content: 'ct1'
-  },
-  {
-    id: 2,
-    content: 'ct2'
-  },
-  {
-    id: 3,
-    content: 'ct3'
-  },
-  {
-    id: 4,
-    content: 'ct4'
-  },
-  {
-    id: 5,
-    content: 'ct5'
-  }
-]);
+import { supabase } from 'boot/supabase';
 
+const todos = ref<Todo[]>([]);
 const meta = ref<Meta>({
-  totalCount: 1200
+  totalCount: 0,
+});
+
+async function getTodos() {
+  const { data } = await supabase.from('todos').select();
+  todos.value = data ?? [];
+  meta.value.totalCount = data?.length ?? 0;
+}
+
+onMounted(() => {
+  void getTodos();
 });
 </script>

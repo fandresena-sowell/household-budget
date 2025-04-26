@@ -34,6 +34,7 @@ These rules are derived from the "Product Requirements Document.md" and "Tech St
 13. **Schema Design:** PostgreSQL schemas *must* accurately represent the required data structures (Account Types, Transaction Types, Categories) outlined in the PRD.
 14. **Data Integrity:** Utilize PostgreSQL constraints (e.g., `NOT NULL`, `FOREIGN KEY`, `CHECK`) to enforce data integrity and business rules (e.g., transaction amounts).
 15. **Security:** Implement Row Level Security (RLS) policies within Supabase/PostgreSQL to ensure users can only access their own financial data.
+16. **MCP Usage** Use Supabase MCP to automate Supabase related tasks when applicable
 
 ### IV. Features & Functionality (Based on PRD)
 
