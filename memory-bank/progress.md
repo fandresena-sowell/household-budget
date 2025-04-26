@@ -19,7 +19,7 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 | 1.6                                                 | Enable Row Level Security                | Done        | RLS enabled with appropriate policies   |
 | 1.7                                                 | Create Database Functions                | Done        | Account balance and household creation  |
 | **Phase 2: Authentication & Core UI Structure**     |
-| 2.1                                                 | Create Authentication Pages              | Not Started |                                         |
+| 2.1                                                 | Create Authentication Pages              | Done        |                                         |
 | 2.2                                                 | Implement Registration Logic             | Not Started |                                         |
 | 2.3                                                 | Implement Household Creation             | Not Started | Auto-create household on registration   |
 | 2.4                                                 | Implement Login Logic                    | Not Started |                                         |
