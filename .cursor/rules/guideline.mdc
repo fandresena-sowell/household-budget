@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Project Rules: Household Budget App
+
+These rules are derived from the "Product Requirements Document.md" and "Tech Stack Documentation.md".
+
+### I. Architecture & Technology
+
+1.  **Tech Stack Adherence:** The project *must* strictly use the defined tech stack: Quasar Framework (v2 with Vue 3) for the frontend and Supabase as the Backend-as-a-Service platform.
+2.  **Mobile-First:** Development *must* prioritize the mobile application experience. Responsive design principles should be applied for potential future web access.
+3.  **API Usage:** Primarily utilize the auto-generated PostgREST (REST) and pg\_graphql (GraphQL) APIs provided by Supabase for standard data operations (CRUD).
+4.  **Custom Logic:** Complex calculations or business logic not suitable for the client-side or standard API calls *must* be implemented using Supabase Edge Functions (Deno/TypeScript).
+5.  **Database:** Use the PostgreSQL database managed by Supabase. Data modeling *must* reflect the relational nature of financial data (accounts, transactions, categories).
+6.  **Authentication:** All user authentication and authorization *must* be handled via Supabase Auth.
+7.  **Real-time:** While Supabase Realtime is available, its implementation should be considered primarily for future cloud-sync features, not necessarily core MVP functionality unless explicitly needed for a "Must Have" requirement.
+
+### II. Frontend (Quasar / Vue 3)
+
+8.  **Component Library:** Leverage Quasar's built-in UI components extensively to ensure UI consistency and development efficiency.
+9.  **Vue 3 Practices:** Adhere to Vue 3 best practices, including using the Composition API.
+10. **State Management:** Use Pinia for managing global application state.
+11. **UI/UX:** The user interface *must* align with the provided mockups and PRD specifications, including:
+    *   Clear navigation (accounts, transactions, time periods).
+    *   Color-coding for income/expenses (Green/Blue for income, Red for expenses).
+    *   Consistent iconography.
+    *   Visual differentiation for positive/negative balance accounts.
+12. **Performance:** Strive to meet the non-functional requirement of app load time < 2 seconds and transaction operations < 1 second.
+
+### III. Backend (Supabase) & Database
+
+13. **Schema Design:** PostgreSQL schemas *must* accurately represent the required data structures (Account Types, Transaction Types, Categories) outlined in the PRD.
+14. **Data Integrity:** Utilize PostgreSQL constraints (e.g., `NOT NULL`, `FOREIGN KEY`, `CHECK`) to enforce data integrity and business rules (e.g., transaction amounts).
+15. **Security:** Implement Row Level Security (RLS) policies within Supabase/PostgreSQL to ensure users can only access their own financial data.
+
+### IV. Features & Functionality (Based on PRD)
+
+16. **MVP Focus:** Prioritize the implementation of all features marked as "**Must Have**" in the PRD before addressing "**Should Have**" features.
+17. **Account Management:** Implement full CRUD operations for accounts, supporting specified types (Cash, Credit Cards, Bank Deposits, Loans).
+18. **Transaction Management:**
+    *   Implement adding and editing transactions with amount, category, and timestamp.
+    *   Support required transaction types (income, expense) and categorization.
+    *   Implement viewing transactions grouped by date and category.
+    *   Deletion and recurring transactions are secondary ("Should Have").
+19. **Budget Overview:**
+    *   Implement Daily, Weekly, Monthly, and Yearly views.
+    *   Display total balance, income vs. expense summary, and balance changes.
+    *   Implement the budget progress visualization (like the 45% indicator) for relevant views.
+20. **Calculations:** Ensure all financial calculations (balances, summaries, percentage changes) are accurate.
+
+### V. Code Quality & Process
+
+21. **Style Guide:** Follow established coding style guides for Vue.js and TypeScript/JavaScript. Use linters (ESLint) and formatters (Prettier) consistently.
+22. **Testing:** Implement unit tests for critical business logic, calculations, and state management utilities. Consider integration tests for API interactions.
+23. **Reliability:** Implement application logic to prevent data loss, especially during transaction creation/editing.
+24. **Documentation:** Comment code where the logic is non-obvious (explaining the *why*, not the *what*). Maintain clear documentation for complex components or functions.
+
+# IMPORTANT:
+# Always read memory-bank/@architecture.md before writing any code. Include entire database schema.
+# Always read memory-bank/@product-requirements-document.md before writing any code.
+# After adding a major feature or completing a milestone, update memory-bank/@architecture.md.
