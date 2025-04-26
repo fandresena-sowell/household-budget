@@ -123,6 +123,64 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
+#### fn_ensure_user_in_household(user_id UUID, user_first_name TEXT)
+
+Ensures a user is part of a household by following these rules:
+
+1. If the user is already in a household, returns that household ID
+2. If the user is not in a household but a household exists, adds the user as a member to that household
+3. If no household exists at all, creates a new household with the user as the owner
+
+This implements a single-household approach for the MVP, where all users collaborate on one main household.
+
+```sql
+CREATE OR REPLACE FUNCTION fn_ensure_user_in_household(user_id UUID, user_first_name TEXT)
+RETURNS UUID AS $$
+DECLARE
+  existing_household_id UUID;
+  new_household_id UUID;
+  user_household_count INT;
+BEGIN
+  -- Check if the user is already in a household
+  SELECT COUNT(*) INTO user_household_count
+  FROM household_members
+  WHERE user_id = fn_ensure_user_in_household.user_id;
+
+  -- If user is already in a household, return that household id
+  IF user_household_count > 0 THEN
+    SELECT household_id INTO existing_household_id
+    FROM household_members
+    WHERE user_id = fn_ensure_user_in_household.user_id
+    LIMIT 1;
+    RETURN existing_household_id;
+  END IF;
+
+  -- Check if any household exists
+  SELECT id INTO existing_household_id
+  FROM households
+  LIMIT 1;
+
+  -- If a household exists, add the user as a member
+  IF existing_household_id IS NOT NULL THEN
+    INSERT INTO household_members (household_id, user_id, role)
+    VALUES (existing_household_id, user_id, 'member');
+    RETURN existing_household_id;
+  END IF;
+
+  -- No household exists, create a new one with the user as owner
+  INSERT INTO households (name)
+  VALUES (COALESCE(user_first_name, 'My') || '''s Household')
+  RETURNING id INTO new_household_id;
+
+  -- Add the user as an owner
+  INSERT INTO household_members (household_id, user_id, role)
+  VALUES (new_household_id, user_id, 'owner');
+
+  RETURN new_household_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
 ### Row Level Security (RLS) Policies
 
 All user data tables (`accounts`, `categories`, `transactions`) have RLS enabled with the following policies:
@@ -140,9 +198,20 @@ The database schema has been fully implemented in Supabase, including:
 
 1. All tables created with appropriate constraints and relationships
 2. Default account types added (Cash, Credit Card, Bank Deposit, Loan)
-3. Database functions implemented for account balance calculations and household creation
+3. Database functions implemented for account balance calculations and household creation/management
 4. Row Level Security (RLS) enabled on all tables with appropriate policies to ensure data security and privacy
 5. Unique constraints and foreign key relationships established for data integrity
+
+### MVV Simplification: Single-Household Approach
+
+For the MVP implementation, we've simplified the application to use a single-household approach:
+
+1. There is only ever ONE household that all users will be part of
+2. The first user to register becomes the owner of the household
+3. All subsequent users will automatically become members of the existing household
+4. This eliminates the need for household switching, while still allowing users to collaborate
+
+This is a temporary design choice to simplify the MVP implementation. Future versions will add support for multiple households per user.
 
 ## Frontend Architecture
 

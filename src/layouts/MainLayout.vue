@@ -2,40 +2,27 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+
+        <q-toolbar-title> Household Budget </q-toolbar-title>
+
         <q-btn
+          v-if="authStore.isAuthenticated"
           flat
           dense
           round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
+          icon="logout"
+          aria-label="Logout"
+          @click="handleLogout"
         />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+        <q-item-label header> Main Navigation </q-item-label>
 
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+        <EssentialLink v-for="link in appLinks" :key="link.title" v-bind="link" />
       </q-list>
     </q-drawer>
 
@@ -47,56 +34,71 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { useAuthStore } from 'src/stores/auth-store';
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
 
-const linksList: EssentialLinkProps[] = [
+const $q = useQuasar();
+const authStore = useAuthStore();
+
+const appLinks: EssentialLinkProps[] = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
+    title: 'Dashboard',
+    caption: 'Overview of your finances',
+    icon: 'dashboard',
+    link: '/',
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
+    title: 'Accounts',
+    caption: 'Manage your accounts',
+    icon: 'account_balance',
+    link: '/accounts',
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
+    title: 'Transactions',
+    caption: 'View and manage transactions',
+    icon: 'receipt_long',
+    link: '/transactions',
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
+    title: 'Categories',
+    caption: 'Organize your finances with categories',
+    icon: 'category',
+    link: '/categories',
   },
   {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
+    title: 'Household',
+    caption: 'Manage household members',
+    icon: 'people',
+    link: '/household',
   },
   {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
+    title: 'Settings',
+    caption: 'App preferences and configuration',
+    icon: 'settings',
+    link: '/settings',
   },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
 ];
 
 const leftDrawerOpen = ref(false);
 
-function toggleLeftDrawer () {
+function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
+}
+
+async function handleLogout() {
+  try {
+    await authStore.logout();
+    $q.notify({
+      type: 'positive',
+      message: 'You have been logged out successfully',
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Error logging out',
+    });
+  }
 }
 </script>
