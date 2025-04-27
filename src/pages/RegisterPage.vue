@@ -342,6 +342,7 @@ const handleSubmit = async () => {
       error instanceof Error ? error.message : 'An error occurred during registration';
     notify({
       type: 'negative',
+      textColor: 'white',
       message: errorMessage,
     });
   } finally {
