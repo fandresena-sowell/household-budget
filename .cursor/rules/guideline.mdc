@@ -59,6 +59,6 @@ These rules are derived from the "Product Requirements Document.md" and "Tech St
 24. **Documentation:** Comment code where the logic is non-obvious (explaining the *why*, not the *what*). Maintain clear documentation for complex components or functions.
 
 # IMPORTANT:
-# Always read memory-bank/@architecture.md before writing any code. Include entire database schema.
-# Always read memory-bank/@product-requirements-document.md before writing any code.
-# After adding a major feature or completing a milestone, update memory-bank/@architecture.md.
+# Always read memory-bank/architecture.md before writing any code. Include entire database schema.
+# Always read memory-bank/product-requirements-document.md before writing any code.
+# After adding a major feature or completing a milestone, update memory-bank/architecture.md.
