@@ -4,7 +4,10 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    children: [
+      { path: '', redirect: '/accounts' },
+      { path: 'accounts', component: () => import('pages/AccountsPage.vue') },
+    ],
   },
 
   // Auth routes
