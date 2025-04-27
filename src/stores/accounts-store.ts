@@ -37,7 +37,7 @@ export const useAccountsStore = defineStore('accounts', () => {
     const householdId = householdStore.householdId;
 
     if (!householdId) {
-      console.error('No household ID found');
+      console.error('fetchAccounts - No household ID found');
       return;
     }
 

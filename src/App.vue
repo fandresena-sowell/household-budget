@@ -3,10 +3,35 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useAuthStore } from 'src/stores/auth-store';
+import { useHouseholdStore } from 'src/stores/household-store';
+import { useCategoriesStore } from 'src/stores/categories-store';
 
 const authStore = useAuthStore();
+const householdStore = useHouseholdStore();
+const categoriesStore = useCategoriesStore();
+
+// Watch for authentication state changes
+watch(
+  () => authStore.isAuthenticated,
+  async (isAuthenticated) => {
+    if (isAuthenticated) {
+      // Load household data when authenticated
+      try {
+        await householdStore.fetchUserHousehold();
+
+        // Initialize categories if needed
+        await categoriesStore.fetchCategories();
+        if (categoriesStore.categories.length === 0) {
+          await categoriesStore.initializeDefaultCategories();
+        }
+      } catch (error) {
+        console.error('Error initializing app data:', error);
+      }
+    }
+  },
+);
 
 onMounted(async () => {
   // Setup auth state listener

@@ -177,6 +177,7 @@ const handleSubmit = async () => {
   if (!email.value || !password.value) {
     notify({
       type: 'negative',
+      textColor: 'white',
       message: 'Please fill in all required fields',
     });
     return;
@@ -199,6 +200,7 @@ const handleSubmit = async () => {
     const errorMessage = error instanceof Error ? error.message : 'An error occurred during login';
     notify({
       type: 'negative',
+      textColor: 'white',
       message: errorMessage,
     });
   } finally {

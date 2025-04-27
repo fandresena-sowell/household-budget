@@ -36,11 +36,11 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 | 3.5                                                 | Display Account Balances                 | Done        |                                                            |
 | 3.6                                                 | Display Total Balance                    | Done        |                                                            |
 | **Phase 4: Transaction Management**                 |
-| 4.1                                                 | Create Category Management               | Not Started | Household categories                                       |
-| 4.2                                                 | Create Add/Edit Transaction Form         | Not Started |                                                            |
-| 4.3                                                 | Create Transaction List View             | Not Started | Show creator information                                   |
-| 4.4                                                 | Integrate Transaction Functionality      | Not Started |                                                            |
-| 4.5                                                 | Apply Transaction Color Coding           | Not Started |                                                            |
+| 4.1                                                 | Create Category Management               | Done        | Added categories store and management page                 |
+| 4.2                                                 | Create Add/Edit Transaction Form         | Done        | Created reusable TransactionForm component                 |
+| 4.3                                                 | Create Transaction List View             | Done        | With transaction grouping by date                          |
+| 4.4                                                 | Integrate Transaction Functionality      | Done        | With proper amount handling for income/expense             |
+| 4.5                                                 | Apply Transaction Color Coding           | Done        | Green for income, red for expenses                         |
 | **Phase 5: Budget Overview & Calculations**         |
 | 5.1                                                 | Calculate Actual Account Balances        | Not Started |                                                            |
 | 5.2                                                 | Update Total Balance Calculation         | Not Started |                                                            |

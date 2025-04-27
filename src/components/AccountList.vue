@@ -49,10 +49,12 @@
           :key="account.id"
           flat
           bordered
-          class="q-mb-md account-card"
+          class="q-mb-md account-card cursor-pointer"
+          @click="goToAccount(account.id)"
         >
           <q-card-section class="q-pa-md">
             <div class="text-subtitle1 text-dark account-name">{{ account.name }}</div>
+            <div class="text-caption text-grey">{{ account.account_type?.name }}</div>
             <div
               class="text-h5 text-weight-bold q-mt-xs"
               :class="
@@ -72,9 +74,11 @@
 
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAccountsStore } from 'src/stores/accounts-store';
 
 const accountsStore = useAccountsStore();
+const router = useRouter();
 const currentPeriod = ref('monthly');
 
 const accounts = computed(() => accountsStore.accounts);
@@ -89,8 +93,16 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
+async function goToAccount(accountId: string): Promise<void> {
+  await router.push(`/accounts/${accountId}`);
+}
+
 onMounted(async () => {
-  await accountsStore.fetchAccounts();
+  try {
+    await accountsStore.fetchAccounts();
+  } catch (error) {
+    console.error('Failed to fetch accounts:', error);
+  }
 });
 </script>
 
