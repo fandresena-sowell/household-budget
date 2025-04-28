@@ -40,43 +40,6 @@ export const useHouseholdStore = defineStore('household', () => {
   });
 
   // Actions
-  async function ensureUserInHousehold(userId: string, userFirstName: string) {
-    isLoading.value = true;
-    error.value = null;
-
-    try {
-      // Call the stored function to ensure user is in a household
-      const { data, error: dbError } = await supabase.rpc('fn_ensure_user_in_household', {
-        user_id: userId,
-        user_first_name: userFirstName,
-      });
-
-      if (dbError) throw dbError;
-
-      // If successful, fetch the household
-      if (data) {
-        await fetchUserHousehold();
-      }
-
-      return { data, error: null };
-    } catch (err) {
-      console.error('Error ensuring user in household:', err);
-      error.value = err instanceof Error ? err : new Error('Failed to ensure user in household');
-      return { data: null, error: error.value };
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  // For backwards compatibility, keep this function but call ensureUserInHousehold
-  async function createHouseholdForUser(userId: string, householdName: string) {
-    console.warn('createHouseholdForUser is deprecated, use ensureUserInHousehold instead');
-
-    // Extract first name from household name (assumes format: "FirstName's Household")
-    const firstName = householdName.split("'")[0] || 'My';
-
-    return ensureUserInHousehold(userId, firstName);
-  }
 
   async function fetchUserHousehold() {
     const authStore = useAuthStore();
@@ -189,8 +152,6 @@ export const useHouseholdStore = defineStore('household', () => {
     isOwner,
 
     // Actions
-    createHouseholdForUser,
-    ensureUserInHousehold,
     fetchUserHousehold,
     fetchHouseholdMembers,
   };

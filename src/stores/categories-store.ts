@@ -2,7 +2,6 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { supabase } from 'src/boot/supabase';
 import { useHouseholdStore } from './household-store';
-import { useAuthStore } from './auth-store';
 
 export interface Category {
   id: string;
@@ -178,61 +177,6 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
-  async function initializeDefaultCategories() {
-    const authStore = useAuthStore();
-    const householdStore = useHouseholdStore();
-
-    if (!authStore.userId || !householdStore.householdId) {
-      console.error('User or household ID not found');
-      return;
-    }
-
-    isLoading.value = true;
-    error.value = null;
-
-    // Define default categories
-    const defaultCategories = [
-      // Income categories
-      { name: 'Salary', type: 'income' as const },
-      { name: 'Freelance', type: 'income' as const },
-      { name: 'Dividends', type: 'income' as const },
-      { name: 'Gifts', type: 'income' as const },
-
-      // Expense categories
-      { name: 'Groceries', type: 'expense' as const },
-      { name: 'Dining', type: 'expense' as const },
-      { name: 'Transportation', type: 'expense' as const },
-      { name: 'Housing', type: 'expense' as const },
-      { name: 'Entertainment', type: 'expense' as const },
-      { name: 'Utilities', type: 'expense' as const },
-    ];
-
-    try {
-      // First check if any categories already exist
-      await fetchCategories();
-
-      if (categories.value.length > 0) {
-        return; // Categories already exist, no need to initialize
-      }
-
-      // Create each default category
-      for (const category of defaultCategories) {
-        await createCategory({
-          name: category.name,
-          type: category.type,
-          household_id: householdStore.householdId,
-          created_by_user_id: authStore.userId,
-        });
-      }
-    } catch (err) {
-      console.error('Error initializing default categories:', err);
-      error.value =
-        err instanceof Error ? err : new Error('Failed to initialize default categories');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   return {
     // State
     categories,
@@ -248,7 +192,6 @@ export const useCategoriesStore = defineStore('categories', () => {
     createCategory,
     updateCategory,
     deleteCategory,
-    initializeDefaultCategories,
   };
 });
 
