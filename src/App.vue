@@ -21,11 +21,8 @@ watch(
       try {
         await householdStore.fetchUserHousehold();
 
-        // Initialize categories if needed
+        // Fetch categories - no need to initialize anymore as they are created by the database trigger
         await categoriesStore.fetchCategories();
-        if (categoriesStore.categories.length === 0) {
-          await categoriesStore.initializeDefaultCategories();
-        }
       } catch (error) {
         console.error('Error initializing app data:', error);
       }

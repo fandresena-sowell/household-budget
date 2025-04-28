@@ -38,8 +38,9 @@
 
       <div v-else-if="accounts.length === 0" class="q-pa-md">
         <q-card flat bordered class="text-center q-pa-md">
-          <div class="text-h6 q-mb-md">No Accounts Yet</div>
-          <p class="text-body1">You haven't added any accounts yet.</p>
+          <div class="text-subtitle1 text-weight-bold q-mb-md text-dark">No Accounts Yet</div>
+          <p class="text-body1 text-grey-7">Contact your household manager to add an account.</p>
+          <q-img width="200px" src="~assets/images/empty-state-accounts.svg" alt="No accounts" />
         </q-card>
       </div>
 
@@ -76,7 +77,6 @@
 import { onMounted, computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAccountsStore } from 'src/stores/accounts-store';
-
 const accountsStore = useAccountsStore();
 const router = useRouter();
 const currentPeriod = ref('monthly');

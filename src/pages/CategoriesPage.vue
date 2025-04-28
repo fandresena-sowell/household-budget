@@ -489,10 +489,6 @@ function openAddCategoryDialog() {
 // Initialize
 onMounted(async () => {
   await categoriesStore.fetchCategories();
-  // If no categories exist, initialize default ones
-  if (categoriesStore.categories.length === 0) {
-    await categoriesStore.initializeDefaultCategories();
-  }
 });
 </script>
 

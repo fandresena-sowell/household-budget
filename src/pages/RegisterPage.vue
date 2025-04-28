@@ -225,13 +225,11 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useAuthStore } from 'src/stores/auth-store';
-import { useHouseholdStore } from 'src/stores/household-store';
 import { z } from 'zod';
 
 const { notify } = useQuasar();
 const router = useRouter();
 const authStore = useAuthStore();
-const householdStore = useHouseholdStore();
 
 const firstName = ref('');
 const lastName = ref('');
@@ -323,18 +321,8 @@ const handleSubmit = async () => {
 
     if (loginError) throw loginError as Error;
 
-    // Create a default household for the user
-    if (authStore.userId) {
-      const { error: householdError } = await householdStore.ensureUserInHousehold(
-        authStore.userId,
-        firstName.value,
-      );
+    // No need to manually create household - it's now handled by database trigger
 
-      if (householdError) {
-        console.error('Error ensuring user in household:', householdError);
-        // Continue even if household process fails - we can retry later
-      }
-    }
     // Redirect to dashboard
     await router.push('/');
   } catch (error: unknown) {

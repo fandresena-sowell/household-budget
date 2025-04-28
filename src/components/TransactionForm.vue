@@ -306,10 +306,6 @@ onMounted(async () => {
 
   if (categoriesStore.categories.length === 0) {
     await categoriesStore.fetchCategories();
-    // If no categories, initialize defaults
-    if (categoriesStore.categories.length === 0) {
-      await categoriesStore.initializeDefaultCategories();
-    }
   }
 
   // If it's an edit and we have a transaction, set the form data

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="text-white" :class="backgroundColor">
+  <q-page class="text-white bg-white">
     <!-- Header with back button and icons from Figma -->
     <q-header :class="backgroundColor">
       <q-toolbar>
@@ -17,48 +17,50 @@
     </q-header>
 
     <!-- Loading state -->
-    <div v-if="isLoading" class="q-pa-md flex flex-center">
+    <div v-if="isLoading" class="q-pa-md flex flex-center" :class="backgroundColor">
       <q-spinner color="white" size="3em" />
       <div class="q-ml-sm">Loading account details...</div>
     </div>
 
     <template v-else-if="account">
-      <!-- Time period filter as q-tabs -->
-      <div class="q-px-md q-py-sm">
-        <q-tabs
-          v-model="currentPeriod"
-          class="text-white"
-          active-color="white"
-          indicator-color="white"
-          narrow-indicator
-          align="center"
-          dense
-        >
-          <q-tab name="daily" label="DAILY" />
-          <q-tab name="weekly" label="WEEKLY" />
-          <q-tab name="monthly" label="MONTHLY" />
-          <q-tab name="yearly" label="YEARLY" />
-        </q-tabs>
-      </div>
-
-      <!-- Balance summary -->
-      <div class="q-px-md q-py-md text-center q-mt-lg">
-        <div class="text-overline text-weight-bold q-opacity-5">BALANCE</div>
-        <div
-          class="balance-value text-white q-my-sm text-weight-bold"
-          :class="
-            (account.current_balance || account.initial_balance) >= 0
-              ? 'text-positive'
-              : 'text-negative'
-          "
-        >
-          {{ formatCurrency(account.current_balance || account.initial_balance) }}
+      <div :class="backgroundColor">
+        <!-- Time period filter as q-tabs -->
+        <div class="q-px-md q-py-sm">
+          <q-tabs
+            v-model="currentPeriod"
+            class="text-white"
+            active-color="white"
+            indicator-color="white"
+            narrow-indicator
+            align="center"
+            dense
+          >
+            <q-tab name="daily" label="DAILY" />
+            <q-tab name="weekly" label="WEEKLY" />
+            <q-tab name="monthly" label="MONTHLY" />
+            <q-tab name="yearly" label="YEARLY" />
+          </q-tabs>
         </div>
-      </div>
 
-      <!-- Transactions list -->
-      <div class="bg-white rounded-borders q-mt-md transactions-container">
-        <transaction-list :account-id="accountId" @add="openAddDialog" @edit="openEditDialog" />
+        <!-- Balance summary -->
+        <div class="q-px-md q-py-md text-center q-mt-lg">
+          <div class="text-overline text-weight-bold q-opacity-5">BALANCE</div>
+          <div
+            class="balance-value text-white q-my-sm text-weight-bold"
+            :class="
+              (account.current_balance || account.initial_balance) >= 0
+                ? 'text-positive'
+                : 'text-negative'
+            "
+          >
+            {{ formatCurrency(account.current_balance || account.initial_balance) }}
+          </div>
+        </div>
+
+        <!-- Transactions list -->
+        <div class="bg-white rounded-borders q-mt-md transactions-container">
+          <transaction-list :account-id="accountId" @add="openAddDialog" @edit="openEditDialog" />
+        </div>
       </div>
     </template>
 
