@@ -8,16 +8,15 @@
 
     <!-- No transactions state -->
     <div v-else-if="groupedTransactions.size === 0" class="q-pa-md">
-      <q-card flat bordered class="text-center q-pa-md">
-        <div class="text-subtitle1 q-mb-md">No Transactions Yet</div>
-        <p class="text-body1">You haven't added any transactions to this account yet.</p>
-        <q-btn
-          color="primary"
-          label="Add Transaction"
-          icon="add"
-          no-caps
-          unelevated
-          @click="$emit('add')"
+      <q-card flat class="text-center q-pa-md">
+        <div class="text-subtitle1 text-weight-bold q-mb-md text-dark">No Transactions Yet</div>
+        <p class="text-body1 text-grey-7">
+          You haven't added any transactions to this account yet.
+        </p>
+        <q-img
+          width="200px"
+          src="~assets/images/empty-state-transactions.svg"
+          alt="No transactions"
         />
       </q-card>
     </div>
