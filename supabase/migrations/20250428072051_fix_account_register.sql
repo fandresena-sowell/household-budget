@@ -1,5 +1,4 @@
 set check_function_bodies = off;
-
 CREATE OR REPLACE FUNCTION public.fn_create_default_categories_for_household(p_household_id uuid, p_created_by_user_id uuid)
  RETURNS void
  LANGUAGE plpgsql
@@ -24,9 +23,7 @@ BEGIN
     (p_household_id, p_created_by_user_id, 'Entertainment', 'expense'),
     (p_household_id, p_created_by_user_id, 'Utilities', 'expense');
 END;
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.fn_ensure_household_has_categories()
  RETURNS void
  LANGUAGE plpgsql
@@ -67,9 +64,7 @@ BEGIN
     END IF;
   END LOOP;
 END;
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.handle_new_household_member()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -102,9 +97,7 @@ BEGIN
   
   RETURN NEW;
 END;
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.fn_create_household_for_user(user_id uuid, household_name text)
  RETURNS uuid
  LANGUAGE plpgsql
@@ -122,9 +115,7 @@ BEGIN
   VALUES (new_household_id, user_id, 'owner');
 
   RETURN new_household_id;
-END;$function$
-;
-
+END;$function$;
 CREATE OR REPLACE FUNCTION public.fn_ensure_user_in_household(user_id uuid, user_first_name text)
  RETURNS uuid
  LANGUAGE plpgsql
@@ -170,9 +161,7 @@ BEGIN
   VALUES (new_household_id, fn_ensure_user_in_household.user_id, 'owner');
   
   RETURN new_household_id;
-END;$function$
-;
-
+END;$function$;
 CREATE OR REPLACE FUNCTION public.fn_get_account_balance(p_account_id uuid)
  RETURNS numeric
  LANGUAGE plpgsql
@@ -194,9 +183,7 @@ BEGIN
 
   -- Return the sum
   RETURN v_initial_balance + v_transactions_sum;
-END;$function$
-;
-
+END;$function$;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -228,9 +215,5 @@ BEGIN
   
   RETURN NEW;
 END;
-$function$
-;
-
+$function$;
 CREATE OR REPLACE TRIGGER trigger_create_default_categories AFTER INSERT ON public.household_members FOR EACH ROW EXECUTE FUNCTION handle_new_household_member();
-
-
