@@ -139,6 +139,27 @@ export const useHouseholdStore = defineStore('household', () => {
     }
   }
 
+  async function fetchHouseholdById(householdId: string) {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const { data, error: householdError } = await supabase.rpc('fn_check_household_exists', {
+        household_id: householdId,
+      });
+
+      if (householdError) throw householdError;
+
+      return { data: data ? { id: householdId } : null, error: null };
+    } catch (err) {
+      console.error('Error checking household existence:', err);
+      error.value = err instanceof Error ? err : new Error('Failed to check household existence');
+      return { data: null, error: error.value };
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   return {
     // State
     currentHousehold,
@@ -154,6 +175,7 @@ export const useHouseholdStore = defineStore('household', () => {
     // Actions
     fetchUserHousehold,
     fetchHouseholdMembers,
+    fetchHouseholdById,
   };
 });
 
