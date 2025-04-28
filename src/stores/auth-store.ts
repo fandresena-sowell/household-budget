@@ -21,7 +21,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function register(
     email: string,
     password: string,
-    metadata: Partial<Tables<'users'>> = {},
+    metadata: Partial<Pick<Tables<'users'>, 'first_name' | 'last_name'>> = {},
+    target_household_id?: string,
   ) {
     isLoading.value = true;
 
@@ -30,7 +31,10 @@ export const useAuthStore = defineStore('auth', () => {
         email,
         password,
         options: {
-          data: metadata,
+          data: {
+            ...metadata,
+            target_household_id,
+          },
         },
       });
 

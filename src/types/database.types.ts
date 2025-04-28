@@ -283,6 +283,10 @@ export type Database = {
         Args: { account_id: string };
         Returns: number;
       };
+      fn_check_household_exists: {
+        Args: { household_id: string };
+        Returns: boolean;
+      };
     };
     Enums: {
       [_ in never]: never;
