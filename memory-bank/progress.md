@@ -58,9 +58,9 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 
 We've made the following architecture changes to simplify the MVP:
 
-1. **Single Household Approach**: Implemented a system where all users share one household. The first user to register becomes the owner, and all subsequent users become members of that household.
-2. **Simplified User Onboarding**: All new users automatically join the existing household, eliminating the need for household selection or switching in the MVP.
-3. **Created `fn_ensure_user_in_household` function**: This new database function handles the logic of ensuring a user is part of the household, either by joining an existing one or creating a new one if none exists.
+1. **Household Approach**: Implemented a system where users can either join an existing household as a member or become the owner of a newly created household during registration.
+2. **Simplified User Onboarding**: During registration, users can choose to either join an existing household or create their own, providing flexibility while maintaining simplicity in the MVP.
+3. **Created `fn_ensure_user_in_household` function**: This new database function handles the logic of ensuring a user is part of a household by either joining an existing one or creating a new one if they choose to do so.
 
 ## Test Data
 
