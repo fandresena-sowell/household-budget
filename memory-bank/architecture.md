@@ -71,32 +71,35 @@
 
 ### Database Functions
 
-#### fn_get_account_balance(account_id UUID)
+#### fn_get_account_balance(p_account_id UUID)
 
 Returns the current balance of an account by adding the initial balance to the sum of all transaction amounts for that account.
 
 ```sql
-CREATE OR REPLACE FUNCTION fn_get_account_balance(account_id UUID)
-RETURNS NUMERIC AS $$
+CREATE OR REPLACE FUNCTION public.fn_get_account_balance(p_account_id uuid)
+ RETURNS numeric
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
-  initial_balance NUMERIC;
-  transactions_sum NUMERIC;
+  v_initial_balance NUMERIC;
+  v_transactions_sum NUMERIC;
 BEGIN
   -- Get initial balance
-  SELECT a.initial_balance INTO initial_balance
+  SELECT a.initial_balance INTO v_initial_balance
   FROM accounts a
-  WHERE a.id = account_id;
+  WHERE a.id = p_account_id;
 
   -- Get sum of transactions
-  SELECT COALESCE(SUM(t.amount), 0) INTO transactions_sum
-  FROM transactions t
-  WHERE t.account_id = account_id
+  SELECT COALESCE(SUM(t.amount), 0) INTO v_transactions_sum
+  FROM public.transactions t
+  WHERE t.account_id = p_account_id
   AND t.status = 'completed';
 
   -- Return the sum
-  RETURN initial_balance + transactions_sum;
+  RETURN v_initial_balance + v_transactions_sum;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$;
 ```
 
 #### fn_create_household_for_user(user_id UUID, household_name TEXT)
@@ -104,91 +107,350 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 Creates a new household and adds the user as an owner member.
 
 ```sql
-CREATE OR REPLACE FUNCTION fn_create_household_for_user(user_id UUID, household_name TEXT)
-RETURNS UUID AS $$
+CREATE OR REPLACE FUNCTION public.fn_create_household_for_user(user_id uuid, household_name text)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
   new_household_id UUID;
 BEGIN
   -- Create a new household
-  INSERT INTO households (name)
+  INSERT INTO public.households (name)
   VALUES (household_name)
   RETURNING id INTO new_household_id;
 
   -- Add the user as an owner
-  INSERT INTO household_members (household_id, user_id, role)
+  INSERT INTO public.household_members (household_id, user_id, role)
   VALUES (new_household_id, user_id, 'owner');
 
   RETURN new_household_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$;
 ```
 
-#### fn_ensure_user_in_household(user_id UUID, user_first_name TEXT)
+#### fn_ensure_user_in_household(user_id UUID, user_first_name TEXT, target_household_id UUID DEFAULT NULL::uuid)
 
 Ensures a user is part of a household by following these rules:
 
-1. If the user is already in a household, returns that household ID
-2. If the user is not in a household but a household exists, adds the user as a member to that household
-3. If no household exists at all, creates a new household with the user as the owner
+1. If the user is already in a household, returns that household ID.
+2. If a `target_household_id` is provided and exists, adds the user to that household as a member.
+3. If no household exists or target doesn't exist, creates a new household with the user as the owner.
 
-This implements a single-household approach for the MVP, where all users collaborate on one main household.
+This implements a flexible household joining mechanism, defaulting to a new household if no specific target is given.
 
 ```sql
-CREATE OR REPLACE FUNCTION fn_ensure_user_in_household(user_id UUID, user_first_name TEXT)
-RETURNS UUID AS $$
+CREATE OR REPLACE FUNCTION public.fn_ensure_user_in_household(user_id uuid, user_first_name text, target_household_id uuid DEFAULT NULL::uuid)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
 DECLARE
   existing_household_id UUID;
   new_household_id UUID;
   user_household_count INT;
+  target_household_exists BOOLEAN;
 BEGIN
   -- Check if the user is already in a household
   SELECT COUNT(*) INTO user_household_count
-  FROM household_members
-  WHERE user_id = fn_ensure_user_in_household.user_id;
+  FROM public.household_members
+  WHERE household_members.user_id = fn_ensure_user_in_household.user_id;
 
   -- If user is already in a household, return that household id
   IF user_household_count > 0 THEN
     SELECT household_id INTO existing_household_id
-    FROM household_members
-    WHERE user_id = fn_ensure_user_in_household.user_id
+    FROM public.household_members
+    WHERE household_members.user_id = fn_ensure_user_in_household.user_id
     LIMIT 1;
     RETURN existing_household_id;
   END IF;
 
-  -- Check if any household exists
-  SELECT id INTO existing_household_id
-  FROM households
-  LIMIT 1;
+  -- If a target household ID is provided
+  IF target_household_id IS NOT NULL THEN
+    -- Check if the target household exists
+    SELECT EXISTS (
+      SELECT 1 FROM public.households
+      WHERE id = target_household_id
+    ) INTO target_household_exists;
 
-  -- If a household exists, add the user as a member
-  IF existing_household_id IS NOT NULL THEN
-    INSERT INTO household_members (household_id, user_id, role)
-    VALUES (existing_household_id, user_id, 'member');
-    RETURN existing_household_id;
+    IF target_household_exists THEN
+      -- Add user as member to existing household
+      INSERT INTO public.household_members (household_id, user_id, role)
+      VALUES (target_household_id, fn_ensure_user_in_household.user_id, 'member');
+      RETURN target_household_id;
+    END IF;
   END IF;
 
-  -- No household exists, create a new one with the user as owner
-  INSERT INTO households (name)
+  -- Create new household with user as owner
+  INSERT INTO public.households (name)
   VALUES (COALESCE(user_first_name, 'My') || '''s Household')
   RETURNING id INTO new_household_id;
 
-  -- Add the user as an owner
-  INSERT INTO household_members (household_id, user_id, role)
-  VALUES (new_household_id, user_id, 'owner');
+  INSERT INTO public.household_members (household_id, user_id, role)
+  VALUES (new_household_id, fn_ensure_user_in_household.user_id, 'owner');
 
   RETURN new_household_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$function$;
+```
+
+#### fn_check_household_exists(household_id UUID)
+
+Checks if a household with the given ID exists.
+
+```sql
+CREATE OR REPLACE FUNCTION public.fn_check_household_exists(household_id uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.households WHERE id = household_id
+  );
+END;
+$function$;
+```
+
+#### fn_create_default_categories_for_household(p_household_id UUID, p_created_by_user_id UUID)
+
+Creates a set of default income and expense categories for a new household.
+
+```sql
+CREATE OR REPLACE FUNCTION public.fn_create_default_categories_for_household(p_household_id uuid, p_created_by_user_id uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  -- Create default income categories
+  INSERT INTO public.categories (household_id, created_by_user_id, name, type)
+  VALUES
+    (p_household_id, p_created_by_user_id, 'Salary', 'income'),
+    (p_household_id, p_created_by_user_id, 'Freelance', 'income'),
+    (p_household_id, p_created_by_user_id, 'Dividends', 'income'),
+    (p_household_id, p_created_by_user_id, 'Gifts', 'income');
+
+  -- Create default expense categories
+  INSERT INTO public.categories (household_id, created_by_user_id, name, type)
+  VALUES
+    (p_household_id, p_created_by_user_id, 'Groceries', 'expense'),
+    (p_household_id, p_created_by_user_id, 'Dining', 'expense'),
+    (p_household_id, p_created_by_user_id, 'Transportation', 'expense'),
+    (p_household_id, p_created_by_user_id, 'Housing', 'expense'),
+    (p_household_id, p_created_by_user_id, 'Entertainment', 'expense'),
+    (p_household_id, p_created_by_user_id, 'Utilities', 'expense');
+END;
+$function$;
+```
+
+#### fn_ensure_household_has_categories()
+
+Loops through all households and ensures each has default categories, creating them if missing.
+
+```sql
+CREATE OR REPLACE FUNCTION public.fn_ensure_household_has_categories()
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  household_rec RECORD;
+  category_count INTEGER;
+  owner_id UUID;
+BEGIN
+  -- Loop through all households
+  FOR household_rec IN SELECT id FROM public.households LOOP
+    -- Check if the household has categories
+    SELECT COUNT(*) INTO category_count
+    FROM public.categories
+    WHERE household_id = household_rec.id;
+
+    -- If no categories, create them using the household owner's ID
+    IF category_count = 0 THEN
+      -- Find the owner of the household
+      SELECT user_id INTO owner_id
+      FROM public.household_members
+      WHERE household_id = household_rec.id AND role = 'owner'
+      LIMIT 1;
+
+      -- If no owner found, use any member
+      IF owner_id IS NULL THEN
+        SELECT user_id INTO owner_id
+        FROM public.household_members
+        WHERE household_id = household_rec.id
+        LIMIT 1;
+      END IF;
+
+      -- Create default categories if we found a user
+      IF owner_id IS NOT NULL THEN
+        PERFORM public.fn_create_default_categories_for_household(household_rec.id, owner_id);
+      END IF;
+    END IF;
+  END LOOP;
+END;
+$function$;
+```
+
+#### is_household_member(household_uuid UUID)
+
+Checks if the currently authenticated user is a member of the specified household.
+
+```sql
+CREATE OR REPLACE FUNCTION public.is_household_member(household_uuid uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM public.household_members
+    WHERE household_id = household_uuid
+    AND user_id = auth.uid()
+  );
+END;
+$function$;
+```
+
+#### is_household_owner(household_uuid UUID)
+
+Checks if the currently authenticated user is an owner of the specified household.
+
+```sql
+CREATE OR REPLACE FUNCTION public.is_household_owner(household_uuid uuid)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM public.household_members
+    WHERE household_id = household_uuid
+    AND user_id = auth.uid()
+    AND role = 'owner'
+  );
+END;
+$function$;
+```
+
+### Triggers & Associated Functions
+
+#### handle_new_user() (Trigger on auth.users)
+
+Triggered after a new user signs up (inserts into `auth.users`). Creates a corresponding record in `public.users` and ensures the user is added to a household using `fn_ensure_user_in_household`.
+
+```sql
+-- Trigger Function
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  household_id UUID;
+  first_name TEXT;
+  target_household_id UUID;
+BEGIN
+  -- Extract first name from metadata
+  first_name := (NEW.raw_user_meta_data->>'first_name')::text;
+
+  -- Extract target household ID from metadata if provided
+  target_household_id := (NEW.raw_user_meta_data->>'target_household_id')::uuid;
+
+  -- Create user record
+  INSERT INTO public.users (
+    id,
+    email,
+    first_name,
+    last_name
+  )
+  VALUES (
+    NEW.id,
+    NEW.email,
+    first_name,
+    (NEW.raw_user_meta_data->>'last_name')::text
+  );
+
+  -- Ensure user is in a household with optional target household ID
+  SELECT public.fn_ensure_user_in_household(NEW.id, first_name, target_household_id) INTO household_id;
+
+  RETURN NEW;
+END;
+$function$;
+
+-- Trigger Definition
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+```
+
+#### handle_new_household_member() (Trigger on public.household_members)
+
+Triggered after a new member is added to `public.household_members`. Ensures that default categories are created for the household if they don't exist yet, using `fn_create_default_categories_for_household`.
+
+```sql
+-- Trigger Function
+CREATE OR REPLACE FUNCTION public.handle_new_household_member()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  category_count INTEGER;
+  first_member BOOLEAN;
+BEGIN
+  -- Check if categories already exist for this household
+  SELECT COUNT(*) INTO category_count
+  FROM public.categories
+  WHERE household_id = NEW.household_id;
+
+  -- Only create default categories if none exist yet
+  IF category_count = 0 THEN
+    -- We'll create categories if either:
+    -- 1. The new member is an owner (new household case)
+    -- 2. This is the first member of an existing household with no categories
+
+    -- Check if this is the first member of the household
+    SELECT COUNT(*) = 1 INTO first_member
+    FROM public.household_members
+    WHERE household_id = NEW.household_id;
+
+    IF NEW.role = 'owner' OR first_member THEN
+      PERFORM public.fn_create_default_categories_for_household(NEW.household_id, NEW.user_id);
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$function$;
+
+-- Trigger Definition
+CREATE TRIGGER on_household_member_created
+  AFTER INSERT ON public.household_members
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_household_member();
+
 ```
 
 ### Row Level Security (RLS) Policies
 
-All user data tables (`accounts`, `categories`, `transactions`) have RLS enabled with the following policies:
+RLS is enabled on core data tables to enforce data privacy:
 
-1. Users can `SELECT` only their own records (those belonging to households they are members of)
-2. Users can `INSERT` records only with their own user_id and for households they are members of
-3. Users can `UPDATE` only records for households they are members of
-4. Users can `DELETE` only records for households they are owners of
+- **`households`**: RLS enabled. Policies likely restrict access based on membership (via `household_members`).
+- **`household_members`**: RLS enabled. Policies likely restrict access based on the user being the member or potentially an owner of the household.
+- **`accounts`**: RLS enabled. Policies ensure users can only interact with accounts belonging to households they are members of.
+- **`categories`**: RLS enabled. Policies ensure users can only interact with categories belonging to households they are members of.
+- **`transactions`**: RLS enabled. Policies ensure users can only interact with transactions belonging to households they are members of.
+
+General Policy Principles (Specific implementation may vary):
+
+1. Users can `SELECT` records only for households they are members of.
+2. Users can `INSERT` records only for households they are members of, often linking to their own `auth.uid()`.
+3. Users can `UPDATE` records only for households they are members of.
+4. Users can `DELETE` records typically only if they are owners of the household (or created the specific record, depending on policy).
+
+_(Note: `account_types` does not have RLS enabled as it likely contains static, public data. The `todos` and `users` tables also have RLS enabled but are not detailed here as they are not core to the documented budget app schema)._
 
 ## Implementation Notes
 

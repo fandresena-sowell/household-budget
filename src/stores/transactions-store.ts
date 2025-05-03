@@ -156,6 +156,46 @@ export const useTransactionsStore = defineStore('transactions', () => {
     }
   }
 
+  async function fetchTransactionsForAccountAndPeriod(
+    accountId: string,
+    startDate: string,
+    endDate: string,
+  ) {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('transactions')
+        .select(
+          `
+          *,
+          category:categories(name, type),
+          account:accounts(name),
+          created_by:users(email, first_name, last_name)
+        `,
+        )
+        .eq('account_id', accountId)
+        .gte('transaction_date', startDate)
+        .lte('transaction_date', endDate)
+        .order('transaction_date', { ascending: false });
+
+      if (fetchError) throw fetchError;
+
+      if (data) {
+        transactions.value = data as unknown as Transaction[];
+      }
+    } catch (err) {
+      console.error('Error fetching transactions for account and period:', err);
+      error.value =
+        err instanceof Error
+          ? err
+          : new Error('Failed to fetch transactions for account and period');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   async function createTransaction(
     transactionData: Omit<Transaction, 'id' | 'created_at' | 'created_by' | 'category' | 'account'>,
   ) {
@@ -270,6 +310,48 @@ export const useTransactionsStore = defineStore('transactions', () => {
     }
   }
 
+  async function fetchTransactionsByDateRange(startDate: string, endDate: string) {
+    const householdStore = useHouseholdStore();
+    const householdId = householdStore.householdId;
+
+    if (!householdId) {
+      console.error('fetchTransactionsByDateRange - No household ID found');
+      transactions.value = [];
+      return;
+    }
+
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('transactions')
+        .select(
+          `
+          *,
+          category:categories(name, type),
+          created_by:users(email),
+          account:accounts(name)
+        `,
+        )
+        .eq('household_id', householdId)
+        .gte('transaction_date', startDate)
+        .lte('transaction_date', endDate)
+        .order('transaction_date', { ascending: false })
+        .returns<Transaction[]>();
+
+      if (fetchError) throw fetchError;
+
+      transactions.value = data || [];
+    } catch (err) {
+      console.error('Error fetching transactions:', err);
+      error.value = err instanceof Error ? err : new Error('Failed to fetch transactions');
+      transactions.value = [];
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   return {
     // State
     transactions,
@@ -284,9 +366,11 @@ export const useTransactionsStore = defineStore('transactions', () => {
     // Actions
     fetchTransactionsForAccount,
     fetchTransactionsForPeriod,
+    fetchTransactionsForAccountAndPeriod,
     createTransaction,
     updateTransaction,
     deleteTransaction,
+    fetchTransactionsByDateRange,
   };
 });
 

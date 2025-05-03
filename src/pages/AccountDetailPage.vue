@@ -42,20 +42,77 @@
           </q-tabs>
         </div>
 
-        <!-- Balance summary -->
-        <div class="q-px-md q-py-md text-center q-mt-lg">
-          <div class="text-overline text-weight-bold q-opacity-5">BALANCE</div>
-          <div
-            class="balance-value text-white q-my-sm text-weight-bold"
-            :class="
-              (account.current_balance || account.initial_balance) >= 0
-                ? 'text-positive'
-                : 'text-negative'
-            "
-          >
-            {{ formatCurrency(account.current_balance || account.initial_balance) }}
-          </div>
-        </div>
+        <!-- Carousel for Balance and Income/Expense Summary -->
+        <q-carousel
+          v-model="slide"
+          transition-prev="slide-right"
+          transition-next="slide-left"
+          swipeable
+          animated
+          control-color="white"
+          navigation
+          arrows
+          unelevated
+          height="300px"
+          class="bg-transparent"
+        >
+          <q-carousel-slide name="balance" class="column no-wrap flex-center">
+            <!-- Balance summary -->
+            <div class="balance-section q-px-md q-py-md text-center">
+              <div class="text-overline text-weight-bold q-opacity-5">BALANCE</div>
+              <div
+                class="balance-value text-white q-my-sm text-weight-bold"
+                :class="
+                  (account.current_balance || account.initial_balance) >= 0
+                    ? 'text-positive'
+                    : 'text-negative'
+                "
+              >
+                {{ formatCurrency(account.current_balance || account.initial_balance) }}
+              </div>
+            </div>
+          </q-carousel-slide>
+          <q-carousel-slide name="transactions" class="row no-wrap flex-center">
+            <div class="col-6 row justify-center items-center">
+              <q-knob
+                show-value
+                :min="0"
+                :max="100"
+                size="115px"
+                class="text-white q-ma-md"
+                :model-value="transactionPercentage"
+                readonly
+                color="white"
+                track-color="dark-overlay"
+                :thickness="0.1"
+              >
+                <div
+                  class="text-white text-weight-bold"
+                  style="font-size: 40px; padding-left: 12px"
+                >
+                  {{ transactionPercentage }}
+                  <span style="font-size: 19px; position: relative; top: -10px; left: -10px"
+                    >%</span
+                  >
+                </div>
+              </q-knob>
+            </div>
+            <div class="column">
+              <div class="q-px-md q-py-md">
+                <div class="text-overline text-weight-bold balance-label q-opacity-5">INCOMES</div>
+                <div class="text-h5 text-white text-weight-bold text-positive">
+                  {{ formatCurrency(totalIncome) }}
+                </div>
+              </div>
+              <div class="q-px-md q-py-md">
+                <div class="text-overline text-weight-bold balance-label q-opacity-5">EXPENSES</div>
+                <div class="text-h5 text-white text-weight-bold text-negative">
+                  {{ formatCurrency(totalExpenses) }}
+                </div>
+              </div>
+            </div>
+          </q-carousel-slide>
+        </q-carousel>
 
         <!-- Transactions list -->
         <div class="bg-white rounded-borders q-mt-md transactions-container">
@@ -92,6 +149,17 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
+import {
+  format,
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+} from 'date-fns'; // Import date-fns functions
 import { useAccountsStore } from 'src/stores/accounts-store';
 import { useTransactionsStore, type Transaction } from 'src/stores/transactions-store';
 import { useHouseholdStore } from 'src/stores/household-store';
@@ -111,7 +179,8 @@ const authStore = useAuthStore();
 const transactionDialog = ref(false);
 const isEdit = ref(false);
 const currentTransaction = ref<Transaction | null>(null);
-const currentPeriod = ref('monthly');
+const currentPeriod = ref('monthly'); // Keep track of the selected period
+const slide = ref('balance'); // Add state for carousel slide
 
 // Route params
 const accountId = computed(() => route.params.id as string);
@@ -125,6 +194,79 @@ const backgroundColor = computed(() => {
     ? 'bg-positive'
     : 'bg-negative';
 });
+
+// Calculate date range based on currentPeriod
+const currentDateRange = computed(() => {
+  const now = new Date();
+  let start, end;
+  switch (currentPeriod.value) {
+    case 'daily':
+      start = startOfDay(now);
+      end = endOfDay(now);
+      break;
+    case 'weekly':
+      start = startOfWeek(now);
+      end = endOfWeek(now);
+      break;
+    case 'monthly':
+    default: // Default to monthly
+      start = startOfMonth(now);
+      end = endOfMonth(now);
+      break;
+    case 'yearly':
+      start = startOfYear(now);
+      end = endOfYear(now);
+      break;
+  }
+  return {
+    startDate: format(start, 'yyyy-MM-dd'),
+    endDate: format(end, 'yyyy-MM-dd'),
+  };
+});
+
+// Computed properties for Income/Expense Summary based on filtered transactions
+const totalIncome = computed(() => {
+  return transactionsStore.transactions
+    .filter((t) => t.status === 'completed' && t.amount > 0)
+    .reduce((sum, t) => sum + t.amount, 0);
+});
+
+const totalExpenses = computed(() => {
+  // Sum of negative amounts
+  return transactionsStore.transactions
+    .filter((t) => t.status === 'completed' && t.amount < 0)
+    .reduce((sum, t) => sum + t.amount, 0);
+});
+
+const transactionPercentage = computed(() => {
+  const income = totalIncome.value;
+  const expenses = Math.abs(totalExpenses.value);
+
+  if (income <= 0) {
+    return 0;
+  }
+  if (expenses <= 0) {
+    return 0;
+  }
+
+  const percentage = (expenses / income) * 100;
+  return Math.min(Math.round(percentage), 100);
+});
+
+// Fetch transactions for the current account and period
+async function fetchAccountTransactionsForPeriod() {
+  if (!accountId.value) return;
+  try {
+    await transactionsStore.fetchTransactionsForAccountAndPeriod(
+      accountId.value,
+      currentDateRange.value.startDate,
+      currentDateRange.value.endDate,
+    );
+  } catch (error) {
+    console.error('Failed to fetch transactions for account and period:', error);
+    // Optionally show error notification
+  }
+}
 
 // Methods
 function formatCurrency(amount: number): string {
@@ -229,15 +371,21 @@ function handleDeleteTransaction(transaction: Transaction) {
   }
 }
 
-// Watch for route changes
-watch(
-  () => route.params.id,
-  async (newId) => {
-    if (newId) {
-      await transactionsStore.fetchTransactionsForAccount(newId as string);
-    }
-  },
-);
+// Watch for route changes (account ID)
+watch(accountId, async (newId) => {
+  if (newId) {
+    // When account changes, fetch data for the current period
+    await fetchAccountTransactionsForPeriod();
+    slide.value = 'balance';
+  }
+});
+
+// Watch for period changes
+watch(currentPeriod, async () => {
+  // When period changes, fetch data for the current account
+  await fetchAccountTransactionsForPeriod();
+  slide.value = 'balance';
+});
 
 // Initialize data
 onMounted(async () => {
@@ -249,9 +397,8 @@ onMounted(async () => {
     await accountsStore.fetchAccounts();
   }
 
-  if (accountId.value) {
-    await transactionsStore.fetchTransactionsForAccount(accountId.value);
-  }
+  // Initial fetch for the current account and default period
+  await fetchAccountTransactionsForPeriod();
 });
 </script>
 
