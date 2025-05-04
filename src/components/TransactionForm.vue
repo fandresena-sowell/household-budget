@@ -1,6 +1,6 @@
 <template>
   <div class="transaction-form">
-    <q-form @submit="onSubmit" class="full-height bg-white text-dark">
+    <q-form @submit="onSubmit" class="bg-white text-dark" style="min-height: 100vh">
       <!-- Header with form title and close button -->
       <q-toolbar>
         <q-btn
@@ -8,7 +8,7 @@
           dense
           no-caps
           color="positive"
-          label="Cancel"
+          :label="t('components.transactionForm.cancelButton')"
           class="text-weight-medium"
           @click="$emit('cancel')"
         />
@@ -20,7 +20,7 @@
           dense
           no-caps
           color="positive"
-          label="Done"
+          :label="t('components.transactionForm.doneButton')"
           class="text-weight-medium"
           type="submit"
           :loading="isSubmitting"
@@ -38,8 +38,10 @@
           :input-class="amountInputClass"
           class="text-h3 text-weight-bold"
           :rules="[
-            (val) => (val !== null && val !== '' && !isNaN(val)) || 'Amount is required',
-            (val) => val > 0 || 'Amount must be positive',
+            (val) =>
+              (val !== null && val !== '' && !isNaN(val)) ||
+              t('components.transactionForm.validationAmountRequired'),
+            (val) => val > 0 || t('components.transactionForm.validationAmountPositive'),
           ]"
           hide-bottom-space
         >
@@ -53,9 +55,13 @@
 
       <!-- Main form content with cells similar to Figma design -->
       <div class="form-cells q-px-md column q-gutter-y-md">
+        <div class="form-title text-weight-bold text-dark">
+          {{ $t('components.transactionForm.settingsTitle') }}
+        </div>
+        <q-separator />
         <!-- Category Selection -->
         <div class="form-cell row items-center">
-          <div class="form-cell-label">Category</div>
+          <div class="form-cell-label">{{ $t('components.transactionForm.categoryLabel') }}</div>
           <q-select
             v-model="formData.category_id"
             :options="categoryOptions"
@@ -67,7 +73,7 @@
             dense
             emit-value
             map-options
-            :rules="[(val) => !!val || 'Category is required']"
+            :rules="[(val) => !!val || t('components.transactionForm.validationCategoryRequired')]"
             class="col"
           >
             <template v-slot:option="scope">
@@ -79,7 +85,12 @@
                   <q-badge
                     :color="scope.opt.type === 'income' ? 'positive' : 'negative'"
                     text-color="white"
-                    >{{ scope.opt.type }}
+                  >
+                    {{
+                      scope.opt.type === 'income'
+                        ? t('components.transactionForm.incomeBadge')
+                        : t('components.transactionForm.expenseBadge')
+                    }}
                   </q-badge>
                 </q-item-section>
               </q-item>
@@ -92,21 +103,26 @@
 
         <!-- Date -->
         <div class="form-cell row items-center">
-          <div class="form-cell-label">Date</div>
+          <div class="form-cell-label">{{ $t('components.transactionForm.dateLabel') }}</div>
           <q-input
             class="col date-input"
             v-model="formData.transaction_date"
             borderless
             dense
             bg-color="white"
-            :rules="[(val) => !!val || 'Date is required']"
+            :rules="[(val) => !!val || t('components.transactionForm.validationDateRequired')]"
           >
             <template v-slot:append>
               <q-icon name="event" color="grey-6" class="cursor-pointer">
                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                   <q-date v-model="formData.transaction_date" mask="YYYY-MM-DD" color="positive">
                     <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="positive" flat />
+                      <q-btn
+                        v-close-popup
+                        :label="t('components.transactionForm.datePickerClose')"
+                        color="positive"
+                        flat
+                      />
                     </div>
                   </q-date>
                 </q-popup-proxy>
@@ -117,7 +133,7 @@
 
         <!-- Account Selection -->
         <div class="form-cell row items-center">
-          <div class="form-cell-label">Account</div>
+          <div class="form-cell-label">{{ $t('components.transactionForm.accountLabel') }}</div>
           <q-select
             v-model="formData.account_id"
             :options="accountOptions"
@@ -126,7 +142,7 @@
             bg-color="white"
             emit-value
             map-options
-            :rules="[(val) => !!val || 'Account is required']"
+            :rules="[(val) => !!val || t('components.transactionForm.validationAccountRequired')]"
             :readonly="!!transaction && isEdit"
             class="col"
           >
@@ -138,12 +154,16 @@
 
         <!-- Status Toggle -->
         <div class="form-cell row items-center justify-between">
-          <div class="form-cell-label">Status</div>
+          <div class="form-cell-label">{{ $t('components.transactionForm.statusLabel') }}</div>
           <div class="q-px-md q-py-sm">
             <q-toggle
               v-model="isCompleted"
               :color="accentColor"
-              :label="isCompleted ? 'Completed' : 'Pending'"
+              :label="
+                isCompleted
+                  ? t('components.transactionForm.statusCompleted')
+                  : t('components.transactionForm.statusPending')
+              "
               @update:model-value="updateStatus"
             />
           </div>
@@ -151,14 +171,14 @@
 
         <!-- Description/Notes -->
         <div class="form-cell">
-          <div class="form-cell-label">Notes</div>
+          <div class="form-cell-label">{{ $t('components.transactionForm.notesLabel') }}</div>
           <q-input
             v-model="formData.description"
             borderless
             bg-color="white"
             type="textarea"
             dense
-            placeholder="Optional"
+            :placeholder="t('components.transactionForm.notesPlaceholder')"
             hide-bottom-space
             style="height: 155px; max-height: 155px"
             input-style="height: 150px; max-height: 150px"
@@ -171,11 +191,14 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useAccountsStore } from 'src/stores/accounts-store';
 import { useCategoriesStore } from 'src/stores/categories-store';
 import { useHouseholdStore } from 'src/stores/household-store';
 import { useAuthStore } from 'src/stores/auth-store';
 import type { Transaction } from 'src/stores/transactions-store';
+
+const { t } = useI18n();
 
 // Props
 interface Props {
@@ -223,10 +246,9 @@ const formData = reactive({
 
 // Form title
 const formTitle = computed(() => {
-  if (props.isEdit) {
-    return 'Edit Transaction';
-  }
-  return selectedCategoryType.value === 'expense' ? 'Expense' : 'Income';
+  return selectedCategoryType.value === 'expense'
+    ? t('components.transactionForm.expenseTitle')
+    : t('components.transactionForm.incomeTitle');
 });
 
 // Theme colors based on category type
@@ -342,6 +364,12 @@ onMounted(async () => {
 }
 
 .form-cells {
+  .form-title {
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0.3;
+  }
+
   .form-cell {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 

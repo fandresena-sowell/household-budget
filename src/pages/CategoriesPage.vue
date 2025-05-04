@@ -5,7 +5,7 @@
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" class="q-mr-sm" @click="goBack" />
         <q-toolbar-title class="text-h6 text-center text-weight-medium" style="padding-left: 40px">
-          Categories
+          {{ $t('pages.categories.title') }}
         </q-toolbar-title>
         <q-btn
           flat
@@ -22,14 +22,14 @@
       <!-- Loading state -->
       <div v-if="isLoading" class="q-pa-md flex flex-center">
         <q-spinner color="positive" size="3em" />
-        <div class="q-ml-sm">Loading categories...</div>
+        <div class="q-ml-sm">{{ $t('pages.categories.loading') }}</div>
       </div>
 
       <template v-else>
         <!-- Income Categories -->
         <div class="q-mb-lg">
           <div class="text-subtitle1 text-positive q-mb-sm">
-            <q-icon name="arrow_upward" /> Income Categories
+            <q-icon name="arrow_upward" /> {{ $t('pages.categories.incomeTitle') }}
           </div>
           <q-list bordered separator>
             <q-item v-for="category in incomeCategories" :key="category.id">
@@ -59,7 +59,7 @@
             </q-item>
             <q-item v-if="incomeCategories.length === 0">
               <q-item-section>
-                <q-item-label class="text-grey">No income categories yet</q-item-label>
+                <q-item-label class="text-grey">{{ $t('pages.categories.noIncome') }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -68,7 +68,7 @@
         <!-- Expense Categories -->
         <div>
           <div class="text-subtitle1 text-negative q-mb-sm">
-            <q-icon name="arrow_downward" /> Expense Categories
+            <q-icon name="arrow_downward" /> {{ $t('pages.categories.expenseTitle') }}
           </div>
           <q-list bordered separator>
             <q-item v-for="category in expenseCategories" :key="category.id">
@@ -98,7 +98,9 @@
             </q-item>
             <q-item v-if="expenseCategories.length === 0">
               <q-item-section>
-                <q-item-label class="text-grey">No expense categories yet</q-item-label>
+                <q-item-label class="text-grey">{{
+                  $t('pages.categories.noExpense')
+                }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -110,7 +112,7 @@
     <q-dialog v-model="addDialog" persistent>
       <q-card style="min-width: 350px">
         <q-card-section class="row items-center">
-          <div class="text-h6">Add New Category</div>
+          <div class="text-h6">{{ $t('pages.categories.addDialogTitle') }}</div>
           <q-space />
           <q-btn flat round dense icon="close" v-close-popup />
         </q-card-section>
@@ -119,7 +121,7 @@
           <q-form @submit="addCategory" class="q-gutter-md">
             <q-input
               v-model="newCategory.name"
-              label="Category Name"
+              :label="t('pages.categories.categoryNameLabel')"
               color="positive"
               dense
               :error="!!newCategoryErrors.name"
@@ -129,7 +131,7 @@
             <q-select
               v-model="newCategory.type"
               :options="typeOptions"
-              label="Type"
+              :label="t('pages.categories.typeLabel')"
               color="positive"
               dense
               emit-value
@@ -140,10 +142,15 @@
             />
 
             <div class="row justify-end q-gutter-sm">
-              <q-btn flat label="Cancel" color="positive" v-close-popup />
+              <q-btn
+                flat
+                :label="t('pages.categories.cancelButton')"
+                color="positive"
+                v-close-popup
+              />
               <q-btn
                 type="submit"
-                label="Add"
+                :label="t('pages.categories.addButton')"
                 color="positive"
                 :loading="isAdding"
                 :disable="!newCategory.name || !newCategory.type"
@@ -158,14 +165,14 @@
     <q-dialog v-model="editDialog" persistent>
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">Edit Category</div>
+          <div class="text-h6">{{ $t('pages.categories.editDialogTitle') }}</div>
         </q-card-section>
 
         <q-card-section>
           <q-form @submit="saveEdit" class="q-gutter-md">
             <q-input
               v-model="editingCategory.name"
-              label="Category Name"
+              :label="t('pages.categories.categoryNameLabel')"
               color="positive"
               dense
               :error="!!editingCategoryErrors.name"
@@ -177,7 +184,7 @@
             <q-select
               v-model="editingCategory.type"
               :options="typeOptions"
-              label="Type"
+              :label="t('pages.categories.typeLabel')"
               color="positive"
               dense
               emit-value
@@ -190,10 +197,15 @@
             />
 
             <div class="row justify-end q-gutter-sm">
-              <q-btn flat label="Cancel" color="positive" v-close-popup />
+              <q-btn
+                flat
+                :label="t('pages.categories.cancelButton')"
+                color="positive"
+                v-close-popup
+              />
               <q-btn
                 type="submit"
-                label="Save"
+                :label="t('pages.categories.saveButton')"
                 color="positive"
                 :loading="isEditing"
                 :disable="!editingCategory.name || !editingCategory.type"
@@ -209,23 +221,22 @@
       <q-card>
         <q-card-section class="row items-center">
           <q-icon name="warning" color="warning" size="md" />
-          <div class="text-h6 q-ml-md">Delete Category</div>
+          <div class="text-h6 q-ml-md">{{ $t('pages.categories.deleteDialogTitle') }}</div>
         </q-card-section>
 
         <q-card-section>
           <p>
-            Are you sure you want to delete the category
+            {{ $t('pages.categories.deleteConfirmationPrompt') }}
             <strong>{{ categoryToDelete?.name }}</strong
-            >? This action cannot be undone, and any transactions using this category will need to
-            be recategorized.
+            >? {{ $t('pages.categories.deleteConfirmationWarning') }}
           </p>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="positive" v-close-popup />
+          <q-btn flat :label="t('pages.categories.cancelButton')" color="positive" v-close-popup />
           <q-btn
             flat
-            label="Delete"
+            :label="t('pages.categories.deleteButton')"
             color="negative"
             @click="deleteCategory"
             :loading="isDeleting"
@@ -239,6 +250,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
 import { useCategoriesStore } from 'src/stores/categories-store';
 import { useHouseholdStore } from 'src/stores/household-store';
 import { useAuthStore } from 'src/stores/auth-store';
@@ -252,6 +264,7 @@ const router = useRouter();
 const categoriesStore = useCategoriesStore();
 const householdStore = useHouseholdStore();
 const authStore = useAuthStore();
+const { t } = useI18n();
 
 // Navigation
 function goBack() {
@@ -310,10 +323,10 @@ const editingCategoryErrors = reactive({
 });
 
 // Category type options for select
-const typeOptions = [
-  { label: 'Income', value: 'income' },
-  { label: 'Expense', value: 'expense' },
-];
+const typeOptions = computed(() => [
+  { label: t('pages.categories.incomeOption'), value: 'income' },
+  { label: t('pages.categories.expenseOption'), value: 'expense' },
+]);
 
 // Validate a single field
 function validateField(formData: any, errors: any, field: 'name' | 'type') {

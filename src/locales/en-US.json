@@ -1,0 +1,164 @@
+{
+    "global": {
+        "appName": "Household Budget"
+    },
+    "pages": {
+        "index": {
+            "exampleComponentTitle": "Example component"
+        },
+        "errorNotFound": {
+            "message": "Oops. Nothing here...",
+            "goHomeButton": "Go Home"
+        },
+        "login": {
+            "logoPlaceholder": "Logoipsum",
+            "title": "Sign in to your Account",
+            "noAccountPrompt": "Don't have an account?",
+            "signUpLink": "Sign Up",
+            "emailLabel": "Email",
+            "passwordLabel": "Password",
+            "rememberMeLabel": "Remember me",
+            "forgotPasswordLink": "Forgot Password ?",
+            "loginButton": "Log In",
+            "orLoginWith": "Or login with",
+            "googleButton": "Google",
+            "facebookButton": "Facebook",
+            "termsPrefix": "By signing up, you agree to the",
+            "termsOfServiceLink": "Terms of Service",
+            "dataProcessingLink": "Data Processing Agreement",
+            "errorFillFields": "Please fill in all required fields",
+            "errorLoginFallback": "An error occurred during login"
+        },
+        "register": {
+            "logoPlaceholder": "Logoipsum",
+            "title": "Create an Account",
+            "hasAccountPrompt": "Already have an account?",
+            "signInLink": "Sign In",
+            "firstNameLabel": "First Name",
+            "lastNameLabel": "Last Name",
+            "emailLabel": "Email",
+            "passwordLabel": "Password",
+            "confirmPasswordLabel": "Confirm Password",
+            "householdIdLabel": "Household ID (Optional)",
+            "householdIdPlaceholder": "Leave empty to create a new household",
+            "termsAgreementPrefix": "I agree to the",
+            "termsOfServiceLink": "Terms of Service",
+            "dataProcessingLink": "Data Processing Agreement",
+            "createAccountButton": "Create Account",
+            "orSignUpWith": "Or sign up with",
+            "googleButton": "Google",
+            "facebookButton": "Facebook",
+            "registrationSuccess": "Registration successful! Please check your email to confirm your account.",
+            "registrationFailedPrefix": "Registration failed",
+            "errorRegistrationFallback": "An unknown error occurred during registration.",
+            "errorTermsRequired": "You must agree to the terms to register."
+        },
+        "accounts": {
+            "title": "Accounts",
+            "loadingHousehold": "Loading household data..."
+        },
+        "categories": {
+            "title": "Categories",
+            "loading": "Loading categories...",
+            "incomeTitle": "Income Categories",
+            "noIncome": "No income categories yet",
+            "expenseTitle": "Expense Categories",
+            "noExpense": "No expense categories yet",
+            "addDialogTitle": "Add New Category",
+            "editDialogTitle": "Edit Category",
+            "deleteDialogTitle": "Delete Category",
+            "categoryNameLabel": "Category Name",
+            "typeLabel": "Type",
+            "cancelButton": "Cancel",
+            "addButton": "Add",
+            "saveButton": "Save",
+            "deleteButton": "Delete",
+            "deleteConfirmationPrompt": "Are you sure you want to delete the category",
+            "deleteConfirmationWarning": "This action cannot be undone, and any transactions using this category will need to be recategorized.",
+            "addSuccess": "Category added successfully",
+            "addError": "Failed to add category",
+            "updateSuccess": "Category updated successfully",
+            "updateError": "Failed to update category",
+            "deleteSuccess": "Category deleted successfully",
+            "deleteError": "Failed to delete category",
+            "errorUnknown": "An unknown error occurred",
+            "incomeOption": "Income",
+            "expenseOption": "Expense"
+        },
+        "accountDetail": {
+            "defaultTitle": "Account",
+            "loading": "Loading account details...",
+            "tabDaily": "DAILY",
+            "tabWeekly": "WEEKLY",
+            "tabMonthly": "MONTHLY",
+            "tabYearly": "YEARLY",
+            "carouselBalanceLabel": "BALANCE",
+            "carouselIncomesLabel": "INCOMES",
+            "carouselExpensesLabel": "EXPENSES",
+            "errorNotFoundTitle": "Account Not Found",
+            "errorNotFoundMessage": "The account you are looking for does not exist or you don't have access to it.",
+            "goToAccountsButton": "Go to Accounts",
+            "addSuccess": "Transaction added successfully",
+            "addError": "Failed to add transaction",
+            "updateSuccess": "Transaction updated successfully",
+            "updateError": "Failed to update transaction",
+            "deleteSuccess": "Transaction deleted successfully",
+            "deleteError": "Failed to delete transaction",
+            "errorUnknown": "An unknown error occurred"
+        }
+    },
+    "validation": {
+        "required": "{field} is required",
+        "invalidEmail": "Invalid email format",
+        "minLength": "{field} must be at least {min} characters",
+        "invalidUuid": "Invalid ID format",
+        "passwordsDoNotMatch": "Passwords do not match"
+    },
+    "components": {
+        "example": {
+            "countLabel": "Count:",
+            "activeLabel": "Active:",
+            "activeYes": "yes",
+            "activeNo": "no",
+            "clicksLabel": "Clicks on todos:"
+        },
+        "accountList": {
+            "loading": "Loading data...",
+            "emptyTitle": "No Accounts Yet",
+            "emptyMessage": "Contact your household manager to add an account."
+        },
+        "transactionList": {
+            "loading": "Loading transactions...",
+            "emptyTitle": "No Transactions Yet",
+            "emptyMessage": "You haven't added any transactions to this account yet.",
+            "groupToday": "Today",
+            "groupYesterday": "Yesterday",
+            "groupLastWeek": "Last Week",
+            "groupOthers": "Others",
+            "uncategorized": "Uncategorized"
+        },
+        "transactionForm": {
+            "cancelButton": "Cancel",
+            "doneButton": "Done",
+            "expenseTitle": "Expense",
+            "incomeTitle": "Income",
+            "validationAmountRequired": "Amount is required",
+            "validationAmountPositive": "Amount must be positive",
+            "validationCategoryRequired": "Category is required",
+            "validationDateRequired": "Date is required",
+            "validationAccountRequired": "Account is required",
+            "categoryLabel": "Category",
+            "dateLabel": "Date",
+            "accountLabel": "Account",
+            "statusLabel": "Status",
+            "notesLabel": "Notes",
+            "notesPlaceholder": "Optional",
+            "statusCompleted": "Completed",
+            "statusPending": "Pending",
+            "datePickerClose": "Close",
+            "incomeBadge": "income",
+            "expenseBadge": "expense",
+            "settingsTitle": "Settings"
+        }
+    }
+}

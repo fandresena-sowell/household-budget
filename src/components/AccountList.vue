@@ -11,10 +11,10 @@
         align="center"
         dense
       >
-        <q-tab name="daily" label="DAILY" />
-        <q-tab name="weekly" label="WEEKLY" />
-        <q-tab name="monthly" label="MONTHLY" />
-        <q-tab name="yearly" label="YEARLY" />
+        <q-tab name="daily" :label="t('pages.accountDetail.tabDaily')" />
+        <q-tab name="weekly" :label="t('pages.accountDetail.tabWeekly')" />
+        <q-tab name="monthly" :label="t('pages.accountDetail.tabMonthly')" />
+        <q-tab name="yearly" :label="t('pages.accountDetail.tabYearly')" />
       </q-tabs>
     </div>
 
@@ -34,7 +34,9 @@
       <q-carousel-slide name="balance" class="column no-wrap flex-center">
         <!-- Balance summary -->
         <div class="balance-section q-px-md q-py-md text-center">
-          <div class="text-overline text-weight-bold balance-label">BALANCE</div>
+          <div class="text-overline text-weight-bold balance-label">
+            {{ $t('pages.accountDetail.carouselBalanceLabel') }}
+          </div>
           <div
             class="text-h2 text-white q-my-sm text-weight-bold"
             :class="totalBalance >= 0 ? 'text-positive' : 'text-negative'"
@@ -65,13 +67,17 @@
         </div>
         <div class="column">
           <div class="q-px-md q-py-md">
-            <div class="text-overline text-weight-bold balance-label">INCOMES</div>
+            <div class="text-overline text-weight-bold balance-label">
+              {{ $t('pages.accountDetail.carouselIncomesLabel') }}
+            </div>
             <div class="text-h5 text-white text-weight-bold text-positive">
               {{ formatCurrency(totalIncome) }}
             </div>
           </div>
           <div class="q-px-md q-py-md">
-            <div class="text-overline text-weight-bold balance-label">EXPENSES</div>
+            <div class="text-overline text-weight-bold balance-label">
+              {{ $t('pages.accountDetail.carouselExpensesLabel') }}
+            </div>
             <div class="text-h5 text-white text-weight-bold text-negative">
               {{ formatCurrency(totalExpenses) }}
             </div>
@@ -84,13 +90,15 @@
     <div class="q-px-md q-pb-xl">
       <div v-if="isLoading" class="q-pa-md flex flex-center">
         <q-spinner color="white" size="3em" />
-        <div class="q-ml-sm">Loading data...</div>
+        <div class="q-ml-sm">{{ $t('components.accountList.loading') }}</div>
       </div>
 
       <div v-else-if="accounts.length === 0" class="q-pa-md">
-        <q-card flat bordered class="text-center q-pa-md">
-          <div class="text-subtitle1 text-weight-bold q-mb-md text-dark">No Accounts Yet</div>
-          <p class="text-body1 text-grey-7">Contact your household manager to add an account.</p>
+        <q-card flat bordered class="text-center q-pa-md bg-white text-dark">
+          <div class="text-subtitle1 text-weight-bold q-mb-md">
+            {{ $t('components.accountList.emptyTitle') }}
+          </div>
+          <p class="text-body1 text-grey-7">{{ $t('components.accountList.emptyMessage') }}</p>
           <q-img width="200px" src="~assets/images/empty-state-accounts.svg" alt="No accounts" />
         </q-card>
       </div>
@@ -127,6 +135,7 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAccountsStore } from 'src/stores/accounts-store';
 import { useTransactionsStore } from 'src/stores/transactions-store';
 import {
@@ -141,6 +150,7 @@ import {
   endOfYear,
 } from 'date-fns';
 
+const { t } = useI18n();
 const accountsStore = useAccountsStore();
 const router = useRouter();
 const currentPeriod = ref('monthly');
@@ -301,5 +311,22 @@ onMounted(async () => {
     font-weight: 600;
     letter-spacing: -0.56px;
   }
+}
+
+.account-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.account-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.account-name {
+  font-weight: 500;
+}
+
+.dark-overlay {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 </style>

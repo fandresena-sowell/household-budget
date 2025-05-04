@@ -7,7 +7,7 @@
           <q-btn flat round dense icon="arrow_back" class="q-mr-sm" to="/accounts" />
         </div>
         <q-toolbar-title class="text-h6 text-center text-weight-medium" style="padding-left: 40px">
-          {{ account?.name || 'Account' }}
+          {{ account?.name || $t('pages.accountDetail.defaultTitle') }}
         </q-toolbar-title>
         <div class="row q-gutter-x-sm">
           <q-btn flat round dense icon="add_circle_outline" @click="openAddDialog" />
@@ -19,7 +19,7 @@
     <!-- Loading state -->
     <div v-if="isLoading" class="q-pa-md flex flex-center" :class="backgroundColor">
       <q-spinner color="white" size="3em" />
-      <div class="q-ml-sm">Loading account details...</div>
+      <div class="q-ml-sm">{{ $t('pages.accountDetail.loading') }}</div>
     </div>
 
     <template v-else-if="account">
@@ -35,10 +35,10 @@
             align="center"
             dense
           >
-            <q-tab name="daily" label="DAILY" />
-            <q-tab name="weekly" label="WEEKLY" />
-            <q-tab name="monthly" label="MONTHLY" />
-            <q-tab name="yearly" label="YEARLY" />
+            <q-tab name="daily" :label="t('pages.accountDetail.tabDaily')" />
+            <q-tab name="weekly" :label="t('pages.accountDetail.tabWeekly')" />
+            <q-tab name="monthly" :label="t('pages.accountDetail.tabMonthly')" />
+            <q-tab name="yearly" :label="t('pages.accountDetail.tabYearly')" />
           </q-tabs>
         </div>
 
@@ -59,7 +59,9 @@
           <q-carousel-slide name="balance" class="column no-wrap flex-center">
             <!-- Balance summary -->
             <div class="balance-section q-px-md q-py-md text-center">
-              <div class="text-overline text-weight-bold q-opacity-5">BALANCE</div>
+              <div class="text-overline text-weight-bold q-opacity-5">
+                {{ $t('pages.accountDetail.carouselBalanceLabel') }}
+              </div>
               <div
                 class="balance-value text-white q-my-sm text-weight-bold"
                 :class="
@@ -99,13 +101,17 @@
             </div>
             <div class="column">
               <div class="q-px-md q-py-md">
-                <div class="text-overline text-weight-bold balance-label q-opacity-5">INCOMES</div>
+                <div class="text-overline text-weight-bold balance-label q-opacity-5">
+                  {{ $t('pages.accountDetail.carouselIncomesLabel') }}
+                </div>
                 <div class="text-h5 text-white text-weight-bold text-positive">
                   {{ formatCurrency(totalIncome) }}
                 </div>
               </div>
               <div class="q-px-md q-py-md">
-                <div class="text-overline text-weight-bold balance-label q-opacity-5">EXPENSES</div>
+                <div class="text-overline text-weight-bold balance-label q-opacity-5">
+                  {{ $t('pages.accountDetail.carouselExpensesLabel') }}
+                </div>
                 <div class="text-h5 text-white text-weight-bold text-negative">
                   {{ formatCurrency(totalExpenses) }}
                 </div>
@@ -123,9 +129,9 @@
 
     <div v-else class="q-pa-md">
       <q-card flat bordered class="text-center q-pa-md">
-        <div class="text-h6 q-mb-md">Account Not Found</div>
+        <div class="text-h6 q-mb-md">{{ $t('pages.accountDetail.errorNotFoundTitle') }}</div>
         <p class="text-body1">
-          The account you are looking for does not exist or you don't have access to it.
+          {{ $t('pages.accountDetail.errorNotFoundMessage') }}
         </p>
         <q-btn color="primary" label="Go to Accounts" to="/accounts" no-caps unelevated />
       </q-card>
@@ -147,8 +153,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
 import {
   format,
   startOfDay,
@@ -170,6 +177,8 @@ import TransactionForm from 'src/components/TransactionForm.vue';
 // Initialize
 const $q = useQuasar();
 const route = useRoute();
+const router = useRouter();
+const { t } = useI18n();
 const householdStore = useHouseholdStore();
 const accountsStore = useAccountsStore();
 const transactionsStore = useTransactionsStore();
@@ -268,15 +277,19 @@ async function fetchAccountTransactionsForPeriod() {
   }
 }
 
-// Methods
-function formatCurrency(amount: number): string {
+// Helper function to format currency (can be moved to utils later)
+function formatCurrency(value: number | null | undefined): string {
+  if (value === null || value === undefined) {
+    return '--'; // Or return '0.00' or handle as needed
+  }
   return new Intl.NumberFormat('en-US', {
+    // Consider making locale dynamic later
     style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount);
+    currency: 'USD', // Consider making currency dynamic later
+  }).format(value);
 }
 
+// Methods
 function openAddDialog() {
   isEdit.value = false;
   currentTransaction.value = null;
@@ -292,7 +305,7 @@ function openEditDialog(transaction: Transaction) {
 async function handleLogout() {
   try {
     await authStore.logout();
-    // The redirect to login page is already handled in the auth store logout method
+    await router.push('/login');
   } catch (error) {
     console.error('Logout failed:', error);
   }

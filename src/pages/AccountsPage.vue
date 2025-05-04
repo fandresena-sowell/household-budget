@@ -5,7 +5,7 @@
       <q-toolbar>
         <q-btn flat round dense icon="settings" class="q-mr-sm" @click="openSettings" />
         <q-toolbar-title class="text-h6 text-center text-weight-medium" style="padding-left: 40px">
-          Accounts
+          {{ $t('pages.accounts.title') }}
         </q-toolbar-title>
         <div class="row q-gutter-x-sm">
           <q-btn flat round dense icon="logout" @click="handleLogout" />
@@ -16,9 +16,9 @@
     <AccountList v-if="householdStore.currentHousehold" />
 
     <!-- Loading state -->
-    <div v-else-if="householdStore.isLoading" class="q-pa-md flex flex-center">
-      <q-spinner color="primary" size="3em" />
-      <div class="q-ml-sm">Loading household data...</div>
+    <div v-else-if="householdStore.isLoading" class="q-pa-md flex flex-center text-white">
+      <q-spinner color="white" size="3em" />
+      <div class="q-ml-sm">{{ $t('pages.accounts.loadingHousehold') }}</div>
     </div>
   </q-page>
 </template>
