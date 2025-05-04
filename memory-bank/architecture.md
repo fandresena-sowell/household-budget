@@ -6,11 +6,14 @@
 
 #### households
 
-| Column     | Type        | Constraints                   | Description        |
-| ---------- | ----------- | ----------------------------- | ------------------ |
-| id         | UUID        | PK, default gen_random_uuid() | Unique identifier  |
-| name       | TEXT        | NOT NULL                      | Household name     |
-| created_at | TIMESTAMPTZ | DEFAULT now()                 | Creation timestamp |
+| Column          | Type        | Constraints                                                                        | Description                                               |
+| --------------- | ----------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| id              | UUID        | PK, default gen_random_uuid()                                                      | Unique identifier                                         |
+| name            | TEXT        | NOT NULL                                                                           | Household name                                            |
+| created_at      | TIMESTAMPTZ | DEFAULT now()                                                                      | Creation timestamp                                        |
+| currency_symbol | TEXT        | NOT NULL, DEFAULT '$'                                                              | Preferred currency symbol                                 |
+| symbol_position | TEXT        | NOT NULL, DEFAULT 'before', CHECK (symbol_position IN ('before', 'after', 'none')) | Where to display the symbol (before/after/none)           |
+| number_format   | TEXT        | NOT NULL, DEFAULT 'comma', CHECK (number_format IN ('comma', 'plain'))             | Number formatting style (comma: 17,000.50, plain: 170000) |
 
 #### household_members
 
@@ -335,123 +338,6 @@ END;
 $function$;
 ```
 
-### Triggers & Associated Functions
-
-#### handle_new_user() (Trigger on auth.users)
-
-Triggered after a new user signs up (inserts into `auth.users`). Creates a corresponding record in `public.users` and ensures the user is added to a household using `fn_ensure_user_in_household`.
-
-```sql
--- Trigger Function
-CREATE OR REPLACE FUNCTION public.handle_new_user()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
-AS $function$
-DECLARE
-  household_id UUID;
-  first_name TEXT;
-  target_household_id UUID;
-BEGIN
-  -- Extract first name from metadata
-  first_name := (NEW.raw_user_meta_data->>'first_name')::text;
-
-  -- Extract target household ID from metadata if provided
-  target_household_id := (NEW.raw_user_meta_data->>'target_household_id')::uuid;
-
-  -- Create user record
-  INSERT INTO public.users (
-    id,
-    email,
-    first_name,
-    last_name
-  )
-  VALUES (
-    NEW.id,
-    NEW.email,
-    first_name,
-    (NEW.raw_user_meta_data->>'last_name')::text
-  );
-
-  -- Ensure user is in a household with optional target household ID
-  SELECT public.fn_ensure_user_in_household(NEW.id, first_name, target_household_id) INTO household_id;
-
-  RETURN NEW;
-END;
-$function$;
-
--- Trigger Definition
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-```
-
-#### handle_new_household_member() (Trigger on public.household_members)
-
-Triggered after a new member is added to `public.household_members`. Ensures that default categories are created for the household if they don't exist yet, using `fn_create_default_categories_for_household`.
-
-```sql
--- Trigger Function
-CREATE OR REPLACE FUNCTION public.handle_new_household_member()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
-AS $function$
-DECLARE
-  category_count INTEGER;
-  first_member BOOLEAN;
-BEGIN
-  -- Check if categories already exist for this household
-  SELECT COUNT(*) INTO category_count
-  FROM public.categories
-  WHERE household_id = NEW.household_id;
-
-  -- Only create default categories if none exist yet
-  IF category_count = 0 THEN
-    -- We'll create categories if either:
-    -- 1. The new member is an owner (new household case)
-    -- 2. This is the first member of an existing household with no categories
-
-    -- Check if this is the first member of the household
-    SELECT COUNT(*) = 1 INTO first_member
-    FROM public.household_members
-    WHERE household_id = NEW.household_id;
-
-    IF NEW.role = 'owner' OR first_member THEN
-      PERFORM public.fn_create_default_categories_for_household(NEW.household_id, NEW.user_id);
-    END IF;
-  END IF;
-
-  RETURN NEW;
-END;
-$function$;
-
--- Trigger Definition
-CREATE TRIGGER on_household_member_created
-  AFTER INSERT ON public.household_members
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_household_member();
-
-```
-
-### Row Level Security (RLS) Policies
-
-RLS is enabled on core data tables to enforce data privacy:
-
-- **`households`**: RLS enabled. Policies likely restrict access based on membership (via `household_members`).
-- **`household_members`**: RLS enabled. Policies likely restrict access based on the user being the member or potentially an owner of the household.
-- **`accounts`**: RLS enabled. Policies ensure users can only interact with accounts belonging to households they are members of.
-- **`categories`**: RLS enabled. Policies ensure users can only interact with categories belonging to households they are members of.
-- **`transactions`**: RLS enabled. Policies ensure users can only interact with transactions belonging to households they are members of.
-
-General Policy Principles (Specific implementation may vary):
-
-1. Users can `SELECT` records only for households they are members of.
-2. Users can `INSERT` records only for households they are members of, often linking to their own `auth.uid()`.
-3. Users can `UPDATE` records only for households they are members of.
-4. Users can `DELETE` records typically only if they are owners of the household (or created the specific record, depending on policy).
-
-_(Note: `account_types` does not have RLS enabled as it likely contains static, public data. The `todos` and `users` tables also have RLS enabled but are not detailed here as they are not core to the documented budget app schema)._
-
 ## Implementation Notes
 
 ### Phase 1 Implementation Details
@@ -494,7 +380,7 @@ The application follows a standard Quasar/Vue 3 architecture with Composition AP
    - CategoriesPage - Category management
    - LoginPage - User login
    - RegisterPage - User registration
-   - SettingsPage - User preferences and app settings
+   - SettingsPage - User preferences and app settings (now includes: manage categories, currency symbol, symbol position, number formatting)
    - HouseholdMembersPage - Manage household members
 
 3. **Components**

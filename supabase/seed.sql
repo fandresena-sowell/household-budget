@@ -244,15 +244,6 @@ INSERT INTO "public"."household_members" ("household_id", "user_id", "role", "jo
 
 
 --
--- Data for Name: todos; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO "public"."todos" ("id", "created_at", "content", "is_done", "isUrgent") VALUES
-	(1, '2025-04-26 07:39:10.137766+00', 'Todo 1', false, false),
-	(2, '2025-04-26 07:39:20.808141+00', 'Todo 2', false, false);
-
-
---
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -311,13 +302,6 @@ INSERT INTO "public"."users" ("id", "email", "first_name", "last_name", "avatar_
 --
 
 SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 26, true);
-
-
---
--- Name: todos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('"public"."todos_id_seq"', 2, true);
 
 
 --

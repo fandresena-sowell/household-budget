@@ -206,7 +206,7 @@ const handleSubmit = async () => {
     await householdStore.fetchUserHousehold();
 
     // Redirect to dashboard on successful login
-    await router.push('/');
+    await router.push({ name: 'home' });
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : t('pages.login.errorLoginFallback');

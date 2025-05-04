@@ -153,6 +153,26 @@
     - **Instruction:** On the `OverviewPage.vue`, use the household store to get the current household ID. Fetch all 'completed' transactions for that household within the _current calendar month_. Calculate the sum of amounts for income transactions (positive amounts) and the sum for expense transactions (negative amounts) within that period. Display these two totals clearly labeled (e.g., "Monthly Income", "Monthly Expenses").
     - **Test:** Add several income and expense transactions with different status values dated within the current month. Add some transactions dated in previous/future months. Navigate to the Overview page. Verify the displayed totals _only_ include 'completed' transactions from the current month and match manually calculated sums.
 
+## Phase 5b: Settings & Personalization
+
+**Goal:** Provide users with a centralized settings page for app personalization and category management.
+
+1.  **Create Settings Page:**
+    - **Instruction:** Add a new page (`pages/SettingsPage.vue`) accessible from the main navigation. This page will serve as the hub for user preferences and personalization options.
+    - **Test:** Navigate to the settings page from the app menu. Verify the page loads and displays user settings options.
+2.  **Manage Categories from Settings:**
+    - **Instruction:** Move category management UI to the settings page, allowing users to add, edit, and remove categories directly from settings.
+    - **Test:** Add, edit, and remove categories from the settings page. Verify changes are reflected in the database and throughout the app.
+3.  **Currency Symbol Selection:**
+    - **Instruction:** Add a control for users to select their preferred currency symbol (e.g., $, €, £, etc.).
+    - **Test:** Change the currency symbol in settings. Verify the new symbol appears throughout the app where amounts are displayed.
+4.  **Symbol Position (before/after/none):**
+    - **Instruction:** Allow users to choose whether the currency symbol appears before, after, or not at all with amounts.
+    - **Test:** Change the symbol position in settings. Verify the position updates in all relevant UI.
+5.  **Number Formatting (comma/plain):**
+    - **Instruction:** Allow users to choose between comma-separated (17,000.50) or plain (170000) number formatting.
+    - **Test:** Change the number formatting in settings. Verify the formatting updates throughout the app.
+
 ## Phase 6: Household Collaboration
 
 **Goal:** Implement functionality for household owners to invite and manage members.

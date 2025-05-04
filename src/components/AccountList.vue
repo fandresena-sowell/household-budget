@@ -70,7 +70,7 @@
             <div class="text-overline text-weight-bold balance-label">
               {{ $t('pages.accountDetail.carouselIncomesLabel') }}
             </div>
-            <div class="text-h5 text-white text-weight-bold text-positive">
+            <div class="text-h6 text-white text-weight-bold text-positive">
               {{ formatCurrency(totalIncome) }}
             </div>
           </div>
@@ -78,7 +78,7 @@
             <div class="text-overline text-weight-bold balance-label">
               {{ $t('pages.accountDetail.carouselExpensesLabel') }}
             </div>
-            <div class="text-h5 text-white text-weight-bold text-negative">
+            <div class="text-h6 text-white text-weight-bold text-negative">
               {{ formatCurrency(totalExpenses) }}
             </div>
           </div>
@@ -138,17 +138,8 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAccountsStore } from 'src/stores/accounts-store';
 import { useTransactionsStore } from 'src/stores/transactions-store';
-import {
-  format,
-  startOfDay,
-  endOfDay,
-  startOfWeek,
-  endOfWeek,
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
-} from 'date-fns';
+import { formatCurrency } from 'src/utils/formatters';
+import { format, startOfDay, endOfDay } from 'date-fns';
 
 const { t } = useI18n();
 const accountsStore = useAccountsStore();
@@ -176,17 +167,17 @@ const currentDateRange = computed(() => {
       end = endOfDay(now);
       break;
     case 'weekly':
-      start = startOfWeek(now);
-      end = endOfWeek(now);
+      start = startOfDay(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
+      end = endOfDay(now);
       break;
     case 'monthly':
     default: // Default to monthly
-      start = startOfMonth(now);
-      end = endOfMonth(now);
+      start = startOfDay(new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000));
+      end = endOfDay(now);
       break;
     case 'yearly':
-      start = startOfYear(now);
-      end = endOfYear(now);
+      start = startOfDay(new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000));
+      end = endOfDay(now);
       break;
   }
   return {
@@ -246,24 +237,18 @@ watch(
   { immediate: true },
 ); // immediate: true to fetch on initial load
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount);
-}
-
-async function goToAccount(accountId: string): Promise<void> {
-  await router.push(`/accounts/${accountId}`);
+function goToAccount(accountId: string) {
+  void router.push({ name: 'account-detail', params: { id: accountId } });
 }
 
 onMounted(async () => {
   try {
-    // Fetch accounts - transactions are fetched by the watcher
+    // Await fetching accounts
     await accountsStore.fetchAccounts();
+    // Transactions are fetched by the watch effect
   } catch (error) {
-    console.error('Failed to fetch accounts:', error);
+    // Optionally handle fetch error if needed, e.g., show notification
+    console.error('Failed to fetch accounts on mount:', error);
   }
 });
 </script>
@@ -304,12 +289,6 @@ onMounted(async () => {
     font-weight: 500;
     letter-spacing: -0.32px;
     opacity: 0.6;
-  }
-
-  .text-h5 {
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: -0.56px;
   }
 }
 

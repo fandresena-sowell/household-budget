@@ -105,6 +105,25 @@
             "deleteSuccess": "Transaction supprimée avec succès",
             "deleteError": "Échec de la suppression de la transaction",
             "errorUnknown": "Une erreur inconnue s'est produite"
+        },
+        "settings": {
+            "title": "Paramètres",
+            "cancelButton": "Annuler",
+            "saveButton": "Enregistrer",
+            "categoriesLabel": "Catégories",
+            "currencySymbolLabel": "Symbole Monétaire",
+            "numberFormatLabel": "Format des Nombres",
+            "symbolPositionLabel": "Position du Symbole",
+            "numberFormatComma": "Virgule (1,234.50)",
+            "numberFormatPlain": "Normal (1 234,50)",
+            "symbolPositionBefore": "Avant (€ 100)",
+            "symbolPositionAfter": "Après (100 €)",
+            "symbolPositionNone": "Aucun (100)",
+            "validationSymbolRequired": "Veuillez entrer un symbole monétaire",
+            "validationNumberFormatRequired": "Veuillez sélectionner un format de nombre",
+            "validationSymbolPositionRequired": "Veuillez sélectionner la position du symbole",
+            "saveSuccess": "Paramètres enregistrés avec succès",
+            "saveError": "Erreur lors de l'enregistrement des paramètres"
         }
     },
     "validation": {
@@ -134,6 +153,7 @@
             "groupToday": "Aujourd'hui",
             "groupYesterday": "Hier",
             "groupLastWeek": "Semaine dernière",
+            "groupLastMonth": "Mois dernier",
             "groupOthers": "Autres",
             "uncategorized": "Non catégorisé"
         },

@@ -16,11 +16,24 @@ export interface HouseholdMember {
   } | null;
 }
 
-export interface Household {
+export interface HouseholdSettings {
+  currency_symbol: string;
+  symbol_position: 'before' | 'after' | 'none';
+  number_format: 'comma' | 'plain';
+}
+
+export interface Household extends HouseholdSettings {
   id: string;
   name: string;
   created_at: string;
   members?: HouseholdMember[];
+}
+
+// Define a type specifically for the data fetched in fetchUserHousehold
+interface FetchedHouseholdData extends HouseholdSettings {
+  id: string;
+  name: string;
+  created_at: string;
 }
 
 export const useHouseholdStore = defineStore('household', () => {
@@ -33,6 +46,10 @@ export const useHouseholdStore = defineStore('household', () => {
   // Getters
   const householdId = computed(() => currentHousehold.value?.id);
   const householdName = computed(() => currentHousehold.value?.name);
+  const currencySymbol = computed(() => currentHousehold.value?.currency_symbol ?? '$');
+  const symbolPosition = computed(() => currentHousehold.value?.symbol_position ?? 'before');
+  const numberFormat = computed(() => currentHousehold.value?.number_format ?? 'comma');
+
   const isOwner = computed(() => {
     const authStore = useAuthStore();
     const userId = authStore.userId;
@@ -62,13 +79,16 @@ export const useHouseholdStore = defineStore('household', () => {
         // Fetch the household details
         const { data: householdData, error: householdError } = await supabase
           .from('households')
-          .select('*')
+          // Explicitly select all required fields, including new settings
+          .select('id, name, created_at, currency_symbol, symbol_position, number_format')
           .eq('id', membershipData.household_id)
           .single()
-          .overrideTypes<{ created_at: string }>();
+          // Use the specific type for the fetched data
+          .overrideTypes<FetchedHouseholdData>();
 
         if (householdError) throw householdError;
 
+        // Assign fetched data. `members` will be added later by fetchHouseholdMembers
         currentHousehold.value = householdData;
 
         // Now fetch all members of this household
@@ -160,6 +180,45 @@ export const useHouseholdStore = defineStore('household', () => {
     }
   }
 
+  async function updateHousehold(
+    householdIdToUpdate: string,
+    settings: Partial<HouseholdSettings>,
+  ) {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const { data, error: updateError } = await supabase
+        .from('households')
+        .update({
+          currency_symbol: settings.currency_symbol,
+          symbol_position: settings.symbol_position,
+          number_format: settings.number_format,
+        } as any)
+        .eq('id', householdIdToUpdate)
+        .select('id, name, created_at, currency_symbol, symbol_position, number_format')
+        .single()
+        // Use the specific type for the fetched data
+        .overrideTypes<FetchedHouseholdData>();
+
+      if (updateError) throw updateError;
+
+      // Update the local state
+      if (data && currentHousehold.value && currentHousehold.value.id === householdIdToUpdate) {
+        currentHousehold.value = {
+          ...currentHousehold.value, // Keep existing non-setting fields
+          ...data, // Overwrite with updated settings
+        };
+      }
+    } catch (err) {
+      console.error('Error updating household settings:', err);
+      error.value = err instanceof Error ? err : new Error('Failed to update household');
+      throw error.value; // Re-throw to be caught in the component
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   return {
     // State
     currentHousehold,
@@ -170,12 +229,16 @@ export const useHouseholdStore = defineStore('household', () => {
     // Getters
     householdId,
     householdName,
+    currencySymbol,
+    symbolPosition,
+    numberFormat,
     isOwner,
 
     // Actions
     fetchUserHousehold,
     fetchHouseholdMembers,
     fetchHouseholdById,
+    updateHousehold,
   };
 });
 

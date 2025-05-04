@@ -46,8 +46,20 @@
           hide-bottom-space
         >
           <template v-slot:prepend>
+            <span class="text-h3" :class="amountInputClass" v-if="symbolPosition === 'before'">
+              {{ selectedCategoryType === 'expense' ? `-${currencySymbol}` : currencySymbol }}
+            </span>
+            <span
+              class="text-h3"
+              :class="amountInputClass"
+              v-else-if="selectedCategoryType === 'expense'"
+            >
+              -
+            </span>
+          </template>
+          <template v-slot:append v-if="symbolPosition !== 'before'">
             <span class="text-h3" :class="amountInputClass">
-              {{ selectedCategoryType === 'expense' ? '-$' : '$' }}
+              {{ currencySymbol }}
             </span>
           </template>
         </q-input>
@@ -243,6 +255,9 @@ const formData = reactive({
   household_id: householdStore.householdId || '',
   created_by_user_id: authStore.userId || '',
 });
+
+const currencySymbol = computed(() => householdStore.currencySymbol);
+const symbolPosition = computed(() => householdStore.symbolPosition);
 
 // Form title
 const formTitle = computed(() => {

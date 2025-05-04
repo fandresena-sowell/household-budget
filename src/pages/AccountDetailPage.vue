@@ -104,7 +104,7 @@
                 <div class="text-overline text-weight-bold balance-label q-opacity-5">
                   {{ $t('pages.accountDetail.carouselIncomesLabel') }}
                 </div>
-                <div class="text-h5 text-white text-weight-bold text-positive">
+                <div class="text-h6 text-white text-weight-bold text-positive">
                   {{ formatCurrency(totalIncome) }}
                 </div>
               </div>
@@ -112,7 +112,7 @@
                 <div class="text-overline text-weight-bold balance-label q-opacity-5">
                   {{ $t('pages.accountDetail.carouselExpensesLabel') }}
                 </div>
-                <div class="text-h5 text-white text-weight-bold text-negative">
+                <div class="text-h6 text-white text-weight-bold text-negative">
                   {{ formatCurrency(totalExpenses) }}
                 </div>
               </div>
@@ -156,21 +156,12 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import {
-  format,
-  startOfDay,
-  endOfDay,
-  startOfWeek,
-  endOfWeek,
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
-} from 'date-fns'; // Import date-fns functions
+import { format, startOfDay, endOfDay } from 'date-fns'; // Import date-fns functions
 import { useAccountsStore } from 'src/stores/accounts-store';
 import { useTransactionsStore, type Transaction } from 'src/stores/transactions-store';
 import { useHouseholdStore } from 'src/stores/household-store';
 import { useAuthStore } from 'src/stores/auth-store';
+import { formatCurrency } from 'src/utils/formatters';
 import TransactionList from 'src/components/TransactionList.vue';
 import TransactionForm from 'src/components/TransactionForm.vue';
 
@@ -214,17 +205,17 @@ const currentDateRange = computed(() => {
       end = endOfDay(now);
       break;
     case 'weekly':
-      start = startOfWeek(now);
-      end = endOfWeek(now);
+      start = startOfDay(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
+      end = endOfDay(now);
       break;
     case 'monthly':
     default: // Default to monthly
-      start = startOfMonth(now);
-      end = endOfMonth(now);
+      start = startOfDay(new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000));
+      end = endOfDay(now);
       break;
     case 'yearly':
-      start = startOfYear(now);
-      end = endOfYear(now);
+      start = startOfDay(new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000));
+      end = endOfDay(now);
       break;
   }
   return {
@@ -277,18 +268,6 @@ async function fetchAccountTransactionsForPeriod() {
   }
 }
 
-// Helper function to format currency (can be moved to utils later)
-function formatCurrency(value: number | null | undefined): string {
-  if (value === null || value === undefined) {
-    return '--'; // Or return '0.00' or handle as needed
-  }
-  return new Intl.NumberFormat('en-US', {
-    // Consider making locale dynamic later
-    style: 'currency',
-    currency: 'USD', // Consider making currency dynamic later
-  }).format(value);
-}
-
 // Methods
 function openAddDialog() {
   isEdit.value = false;
@@ -305,7 +284,7 @@ function openEditDialog(transaction: Transaction) {
 async function handleLogout() {
   try {
     await authStore.logout();
-    await router.push('/login');
+    await router.push({ name: 'login' });
   } catch (error) {
     console.error('Logout failed:', error);
   }
