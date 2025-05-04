@@ -3,15 +3,17 @@
     <!-- Loading state -->
     <div v-if="isLoading" class="q-pa-md flex flex-center">
       <q-spinner color="primary" size="3em" />
-      <div class="q-ml-sm">Loading transactions...</div>
+      <div class="q-ml-sm">{{ $t('components.transactionList.loading') }}</div>
     </div>
 
     <!-- No transactions state -->
     <div v-else-if="groupedTransactions.size === 0" class="q-pa-md">
-      <q-card flat class="text-center q-pa-md">
-        <div class="text-subtitle1 text-weight-bold q-mb-md text-dark">No Transactions Yet</div>
+      <q-card flat class="text-center q-pa-md bg-white text-dark">
+        <div class="text-subtitle1 text-weight-bold q-mb-md">
+          {{ $t('components.transactionList.emptyTitle') }}
+        </div>
         <p class="text-body1 text-grey-7">
-          You haven't added any transactions to this account yet.
+          {{ $t('components.transactionList.emptyMessage') }}
         </p>
         <q-img
           width="200px"
@@ -25,7 +27,7 @@
     <div v-else class="bg-white rounded-borders-top">
       <template v-for="[groupLabel, transactions] in groupedTransactions" :key="groupLabel">
         <!-- Date group header -->
-        <div class="q-pt-lg q-pb-sm relative-position" v-if="groupLabel !== 'Today'">
+        <div class="q-pt-lg q-pb-sm relative-position">
           <div
             class="q-px-md text-subtitle1 text-grey text-uppercase text-weight-medium q-opacity-3"
           >
@@ -51,7 +53,7 @@
               <!-- Transaction details -->
               <div class="col">
                 <div class="text-subtitle1 text-weight-medium text-dark q-opacity-8">
-                  {{ transaction.category?.name || 'Uncategorized' }}
+                  {{ transaction.category?.name || $t('components.transactionList.uncategorized') }}
                 </div>
                 <div v-if="transaction.description" class="text-caption text-grey">
                   {{ transaction.description }}
@@ -81,8 +83,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useTransactionsStore } from 'src/stores/transactions-store';
 import type { Transaction } from 'src/stores/transactions-store';
+
+const { t } = useI18n();
 
 // Props
 interface Props {
@@ -123,10 +128,10 @@ const groupedTransactions = computed(() => {
 
   // Create a Map to preserve insertion order of groups
   const groups = new Map<string, Transaction[]>();
-  groups.set('Today', []);
-  groups.set('Yesterday', []);
-  groups.set('Last Week', []);
-  groups.set('Others', []);
+  groups.set(t('components.transactionList.groupToday'), []);
+  groups.set(t('components.transactionList.groupYesterday'), []);
+  groups.set(t('components.transactionList.groupLastWeek'), []);
+  groups.set(t('components.transactionList.groupOthers'), []);
 
   // Categorize each transaction
   sorted.forEach((transaction) => {
@@ -134,13 +139,13 @@ const groupedTransactions = computed(() => {
     transactionDate.setHours(0, 0, 0, 0);
 
     if (transactionDate.getTime() === today.getTime()) {
-      groups.get('Today')?.push(transaction);
+      groups.get(t('components.transactionList.groupToday'))?.push(transaction);
     } else if (transactionDate.getTime() === yesterday.getTime()) {
-      groups.get('Yesterday')?.push(transaction);
+      groups.get(t('components.transactionList.groupYesterday'))?.push(transaction);
     } else if (transactionDate >= lastWeekStart && transactionDate < yesterday) {
-      groups.get('Last Week')?.push(transaction);
+      groups.get(t('components.transactionList.groupLastWeek'))?.push(transaction);
     } else {
-      groups.get('Others')?.push(transaction);
+      groups.get(t('components.transactionList.groupOthers'))?.push(transaction);
     }
   });
 
