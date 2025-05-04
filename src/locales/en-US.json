@@ -105,6 +105,25 @@
             "deleteSuccess": "Transaction deleted successfully",
             "deleteError": "Failed to delete transaction",
             "errorUnknown": "An unknown error occurred"
+        },
+        "settings": {
+            "title": "Settings",
+            "cancelButton": "Cancel",
+            "saveButton": "Save",
+            "categoriesLabel": "Categories",
+            "currencySymbolLabel": "Currency Symbol",
+            "numberFormatLabel": "Number Format",
+            "symbolPositionLabel": "Symbol Position",
+            "numberFormatComma": "Comma (1,234.50)",
+            "numberFormatPlain": "Plain (1 234.50)",
+            "symbolPositionBefore": "Before ($100)",
+            "symbolPositionAfter": "After (100$)",
+            "symbolPositionNone": "None (100)",
+            "validationSymbolRequired": "Please enter a currency symbol",
+            "validationNumberFormatRequired": "Please select a number format",
+            "validationSymbolPositionRequired": "Please select a symbol position",
+            "saveSuccess": "Settings saved successfully",
+            "saveError": "Error saving settings"
         }
     },
     "validation": {
@@ -134,6 +153,7 @@
             "groupToday": "Today",
             "groupYesterday": "Yesterday",
             "groupLastWeek": "Last Week",
+            "groupLastMonth": "Last Month",
             "groupOthers": "Others",
             "uncategorized": "Uncategorized"
         },

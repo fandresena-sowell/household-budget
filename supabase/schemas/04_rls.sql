@@ -3,7 +3,6 @@ ALTER TABLE "public"."accounts" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."categories" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."household_members" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."households" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "public"."todos" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."transactions" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."users" ENABLE ROW LEVEL SECURITY;
 
@@ -16,10 +15,6 @@ CREATE POLICY "Allow member to read household members" ON "public"."household_me
 CREATE POLICY "Allow owner to manage household members" ON "public"."household_members" FOR ALL USING ("public"."is_household_owner"("household_id")) WITH CHECK ("public"."is_household_owner"("household_id"));
 CREATE POLICY "Allow member to read households" ON "public"."households" FOR SELECT USING ("public"."is_household_member"("id"));
 CREATE POLICY "Allow owner to manage households" ON "public"."households" FOR ALL USING ("public"."is_household_owner"("id"));
-CREATE POLICY "Enable read access for authenticated users only" ON "public"."todos" FOR SELECT USING (("auth"."uid"() = "user_id"));
-CREATE POLICY "Individuals can create todos." ON "public"."todos" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
-CREATE POLICY "Individuals can delete their own todos." ON "public"."todos" FOR DELETE USING (("auth"."uid"() = "user_id"));
-CREATE POLICY "Individuals can update their own todos." ON "public"."todos" FOR UPDATE USING (("auth"."uid"() = "user_id"));
 CREATE POLICY "Allow household members to read transactions" ON "public"."transactions" FOR SELECT USING ("public"."is_household_member"("household_id"));
 CREATE POLICY "Allow household members to manage transactions" ON "public"."transactions" FOR ALL USING ("public"."is_household_member"("household_id"));
 CREATE POLICY "Allow all users to read user info" ON "public"."users" FOR SELECT USING (true);

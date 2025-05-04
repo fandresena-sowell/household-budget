@@ -77,7 +77,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null;
 
       // Navigate to login
-      await router.push('/login');
+      await router.push({ name: 'login' });
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

@@ -403,7 +403,7 @@ const handleSubmit = async () => {
     // No need to manually create household - it's now handled by database trigger
 
     // Redirect to dashboard
-    await router.push('/');
+    await router.push({ name: 'home' });
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : 'An error occurred during registration';

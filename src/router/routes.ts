@@ -5,10 +5,23 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', redirect: '/accounts' },
-      { path: 'accounts', component: () => import('pages/AccountsPage.vue') },
-      { path: 'accounts/:id', component: () => import('pages/AccountDetailPage.vue') },
-      { path: 'categories', component: () => import('pages/CategoriesPage.vue') },
+      { name: 'home', path: '', redirect: '/accounts' },
+      { name: 'accounts', path: 'accounts', component: () => import('pages/AccountsPage.vue') },
+      {
+        name: 'account-detail',
+        path: 'accounts/:id',
+        component: () => import('pages/AccountDetailPage.vue'),
+      },
+      {
+        name: 'settings',
+        path: 'settings',
+        component: () => import('pages/SettingsPage.vue'),
+      },
+      {
+        name: 'categories',
+        path: 'settings/categories',
+        component: () => import('pages/CategoriesPage.vue'),
+      },
     ],
   },
 
@@ -17,8 +30,8 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/AuthLayout.vue'),
     children: [
-      { path: 'login', component: () => import('pages/LoginPage.vue') },
-      { path: 'register', component: () => import('pages/RegisterPage.vue') },
+      { name: 'login', path: 'login', component: () => import('pages/LoginPage.vue') },
+      { name: 'register', path: 'register', component: () => import('pages/RegisterPage.vue') },
     ],
   },
 

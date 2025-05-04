@@ -56,7 +56,7 @@
                   {{ transaction.category?.name || $t('components.transactionList.uncategorized') }}
                 </div>
                 <div v-if="transaction.description" class="text-caption text-grey">
-                  {{ transaction.description }}
+                  {{ formatDate(transaction.transaction_date) }}
                 </div>
               </div>
 
@@ -86,6 +86,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useTransactionsStore } from 'src/stores/transactions-store';
 import type { Transaction } from 'src/stores/transactions-store';
+import { formatCurrency, formatDate } from 'src/utils/formatters';
 
 const { t } = useI18n();
 
@@ -121,6 +122,9 @@ const groupedTransactions = computed(() => {
   const lastWeekStart = new Date(today);
   lastWeekStart.setDate(lastWeekStart.getDate() - 7);
 
+  const lastMonthStart = new Date(today);
+  lastMonthStart.setDate(lastMonthStart.getDate() - 30);
+
   // Sort all transactions by date (newest first)
   const sorted = [...transactionsStore.transactions].sort((a, b) => {
     return new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime();
@@ -131,6 +135,7 @@ const groupedTransactions = computed(() => {
   groups.set(t('components.transactionList.groupToday'), []);
   groups.set(t('components.transactionList.groupYesterday'), []);
   groups.set(t('components.transactionList.groupLastWeek'), []);
+  groups.set(t('components.transactionList.groupLastMonth'), []);
   groups.set(t('components.transactionList.groupOthers'), []);
 
   // Categorize each transaction
@@ -144,6 +149,8 @@ const groupedTransactions = computed(() => {
       groups.get(t('components.transactionList.groupYesterday'))?.push(transaction);
     } else if (transactionDate >= lastWeekStart && transactionDate < yesterday) {
       groups.get(t('components.transactionList.groupLastWeek'))?.push(transaction);
+    } else if (transactionDate >= lastMonthStart && transactionDate < lastWeekStart) {
+      groups.get(t('components.transactionList.groupLastMonth'))?.push(transaction);
     } else {
       groups.get(t('components.transactionList.groupOthers'))?.push(transaction);
     }
@@ -158,14 +165,6 @@ const groupedTransactions = computed(() => {
 
   return groups;
 });
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount);
-}
 
 function getCategoryIcon(categoryName?: string): string {
   if (!categoryName) return 'attach_money';

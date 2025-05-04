@@ -50,7 +50,7 @@ async function handleLogout() {
 }
 
 async function openSettings() {
-  await router.push('/categories');
+  await router.push({ name: 'settings' });
 }
 
 onMounted(async () => {

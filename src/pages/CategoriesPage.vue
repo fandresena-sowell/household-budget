@@ -268,7 +268,7 @@ const { t } = useI18n();
 
 // Navigation
 function goBack() {
-  void router.push('/');
+  void router.push({ name: 'home' });
 }
 
 // Component state

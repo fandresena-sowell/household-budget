@@ -4,7 +4,7 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 
 ## Last Updated
 
-2025-04-28
+2025-05-04
 
 ## Implementation Status
 
@@ -47,6 +47,12 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 | 5.3                                                 | Create Budget Overview Page              | Done        |                                                                    |
 | 5.4                                                 | Implement Time Period Selection          | Done        | Added Daily/Weekly/Monthly/Yearly tabs (QTabs)                     |
 | 5.5                                                 | Implement Monthly Income/Expense Summary | Done        | Implemented for current month on AccountList and AccountDetailPage |
+| **Phase 5b: Settings & Personalization**            |
+| 5b.1                                                | Create Settings Page                     | Done        | Centralized user preferences and personalization                   |
+| 5b.2                                                | Manage Categories from Settings          | Done        | Move category management to settings page                          |
+| 5b.3                                                | Currency Symbol Selection                | Done        | User can choose preferred currency symbol                          |
+| 5b.4                                                | Symbol Position (before/after/none)      | Done        | User can choose where to display currency symbol                   |
+| 5b.5                                                | Number Formatting (comma/plain)          | Done        | User can choose number formatting style                            |
 | **Phase 6: Household Collaboration**                |
 | 6.1                                                 | Create Household Members Page            | Not Started |                                                                    |
 | 6.2                                                 | Implement Member Invitation              | Not Started |                                                                    |
