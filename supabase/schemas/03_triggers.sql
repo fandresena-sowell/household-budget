@@ -1,0 +1,2 @@
+CREATE OR REPLACE TRIGGER "trigger_create_default_categories" AFTER INSERT ON "public"."household_members" FOR EACH ROW EXECUTE FUNCTION "public"."handle_new_household_member"();
+CREATE OR REPLACE TRIGGER "on_auth_user_created" AFTER INSERT ON "auth"."users" FOR EACH ROW EXECUTE FUNCTION "public"."handle_new_user"(); 
