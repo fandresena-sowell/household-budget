@@ -18,15 +18,8 @@ export function formatCurrency(value: number | null | undefined): string {
 
   // Handle number formatting
   if (numberFormat === 'plain') {
-    // Remove existing commas and format with 0 decimal place
     formattedNumber = new Intl.NumberFormat('fr-FR').format(value);
   } else {
-    // Default to 'comma' formatting with 2 decimal places
-    // formattedNumber = value.toLocaleString(undefined, {
-    //   // Use browser default locale
-    //   minimumFractionDigits: 2,
-    //   maximumFractionDigits: 2,
-    // });
     formattedNumber = new Intl.NumberFormat('en-US').format(value);
   }
 

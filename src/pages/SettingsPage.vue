@@ -157,11 +157,11 @@ onMounted(() => {
 // --- Methods ---
 
 function cancel() {
-  router.push('/'); // Navigate back to home/dashboard
+  void router.push('/'); // Navigate back to home/dashboard
 }
 
 function goToCategories() {
-  router.push({ name: 'categories' });
+  void router.push({ name: 'categories' });
 }
 
 async function saveSettings() {
@@ -180,7 +180,7 @@ async function saveSettings() {
       message: t('pages.settings.saveSuccess'),
       icon: 'check_circle',
     });
-    router.push('/'); // Navigate back after successful save
+    void router.push({ name: 'home' }); // Navigate back after successful save
   } catch (error) {
     console.error('Error saving settings:', error);
     $q.notify({
