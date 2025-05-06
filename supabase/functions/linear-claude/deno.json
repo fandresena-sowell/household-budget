@@ -1,0 +1,5 @@
+{
+    "imports": {
+        "anthropic": "npm:@anthropic-ai/sdk@latest"
+    }
+}
