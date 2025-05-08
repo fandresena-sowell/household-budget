@@ -1,5 +1,15 @@
 {
   "appId": "mg.fandresena.householdbudget",
   "appName": "Household Budget",
-  "webDir": "www"
+  "webDir": "www",
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "LIGHT",
+      "backgroundColor": "#65bcbf"
+    }
+  },
+  "android": {
+    "adjustMarginsForEdgeToEdge": "force"
+  }
 }
