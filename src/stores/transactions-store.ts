@@ -19,6 +19,7 @@ export interface Transaction {
   category?: {
     name: string;
     type: string;
+    icon: string;
   } | null;
   account?: {
     name: string;
@@ -92,7 +93,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
         .select(
           `
           *,
-          category:categories(name, type),
+          category:categories(name, type, icon),
           account:accounts(name),
           created_by:users(email, first_name, last_name)
         `,
@@ -131,7 +132,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
         .select(
           `
           *,
-          category:categories(name, type),
+          category:categories(name, type, icon),
           account:accounts(name),
           created_by:users(email, first_name, last_name)
         `,
@@ -170,7 +171,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
         .select(
           `
           *,
-          category:categories(name, type),
+          category:categories(name, type, icon),
           account:accounts(name),
           created_by:users(email, first_name, last_name)
         `,
@@ -209,7 +210,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
         .select(
           `
           *,
-          category:categories(name, type),
+          category:categories(name, type, icon),
           account:accounts(name),
           created_by:users(email, first_name, last_name)
         `,
@@ -254,7 +255,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
         .select(
           `
           *,
-          category:categories(name, type),
+          category:categories(name, type, icon),
           account:accounts(name),
           created_by:users(email, first_name, last_name)
         `,
@@ -329,7 +330,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
         .select(
           `
           *,
-          category:categories(name, type),
+          category:categories(name, type, icon),
           created_by:users(email),
           account:accounts(name)
         `,

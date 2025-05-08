@@ -54,6 +54,7 @@
 | created_by_user_id | UUID        | NOT NULL, FK to auth.users(id)                  | User who created the category  |
 | name               | TEXT        | NOT NULL                                        | Category name                  |
 | type               | TEXT        | NOT NULL, CHECK (type IN ('income', 'expense')) | Category type                  |
+| icon               | TEXT        | NOT NULL, DEFAULT 'payments'                    | Google Material icon name      |
 | created_at         | TIMESTAMPTZ | DEFAULT now()                                   | Category creation timestamp    |
 | UNIQUE             |             | (household_id, name, type)                      | Prevents duplicate categories  |
 

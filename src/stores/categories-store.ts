@@ -7,9 +7,15 @@ export interface Category {
   id: string;
   name: string;
   type: 'income' | 'expense';
+  icon: string;
   created_at: string | null;
   household_id: string;
   created_by_user_id: string;
+}
+
+// Type guard to check if a value has an icon property
+function hasIcon(value: unknown): value is { icon: string } {
+  return !!value && typeof value === 'object' && 'icon' in value;
 }
 
 export const useCategoriesStore = defineStore('categories', () => {
@@ -55,10 +61,14 @@ export const useCategoriesStore = defineStore('categories', () => {
 
       if (data) {
         // Cast the data to ensure type compatibility
-        categories.value = data.map((item) => ({
-          ...item,
-          type: item.type as 'income' | 'expense',
-        }));
+        categories.value = data.map((item) => {
+          const icon = hasIcon(item) ? item.icon : 'payments';
+          return {
+            ...item,
+            type: item.type as 'income' | 'expense',
+            icon,
+          } as Category;
+        });
       }
     } catch (err) {
       console.error('Error fetching categories:', err);
@@ -83,10 +93,12 @@ export const useCategoriesStore = defineStore('categories', () => {
 
       if (data) {
         // Add the new category to the list with proper type casting
+        const icon = hasIcon(data) ? data.icon : 'payments';
         const newCategory: Category = {
           ...data,
           type: data.type as 'income' | 'expense',
-        };
+          icon,
+        } as Category;
         categories.value.push(newCategory);
 
         // Re-sort the categories
@@ -125,10 +137,12 @@ export const useCategoriesStore = defineStore('categories', () => {
 
       if (data) {
         // Update the category in the list with proper type casting
+        const icon = hasIcon(data) ? data.icon : 'payments';
         const updatedCategory: Category = {
           ...data,
           type: data.type as 'income' | 'expense',
-        };
+          icon,
+        } as Category;
 
         const index = categories.value.findIndex((cat) => cat.id === categoryId);
         if (index >= 0) {
