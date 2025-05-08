@@ -37,45 +37,42 @@
         </div>
 
         <!-- Transactions in this group -->
-        <div v-for="transaction in transactions" :key="transaction.id">
-          <!-- Transaction item -->
-          <div class="relative-position q-pb-xs cursor-pointer" @click="$emit('edit', transaction)">
-            <div class="row q-pa-md items-center no-wrap">
-              <!-- Category icon -->
-              <div class="category-icon-wrapper q-mr-md flex flex-center rounded">
+        <template v-for="transaction in transactions" :key="transaction.id">
+          <q-item clickable v-ripple class="q-mb-sm" @click="$emit('edit', transaction)">
+            <q-item-section avatar>
+              <div class="category-icon-wrapper flex flex-center rounded">
                 <q-icon
-                  :name="getCategoryIcon(transaction.category?.name)"
+                  :name="transaction.category?.icon || 'attach_money'"
                   size="24px"
                   color="primary"
                 />
               </div>
+            </q-item-section>
 
-              <!-- Transaction details -->
-              <div class="col">
-                <div class="text-subtitle1 text-weight-medium text-dark q-opacity-8">
-                  {{ transaction.category?.name || $t('components.transactionList.uncategorized') }}
-                </div>
-                <div v-if="transaction.description" class="text-caption text-grey">
-                  {{ formatDate(transaction.transaction_date) }}
-                </div>
-              </div>
+            <q-item-section>
+              <q-item-label class="text-subtitle1 text-weight-medium text-dark q-opacity-8">
+                {{ transaction.category?.name || $t('components.transactionList.uncategorized') }}
+              </q-item-label>
+              <q-item-label v-if="transaction.transaction_date" caption class="text-grey">
+                {{ formatDate(transaction.transaction_date) }}
+              </q-item-label>
+            </q-item-section>
 
-              <!-- Amount -->
-              <div
-                class="text-subtitle1 text-weight-medium text-right q-ml-md"
+            <q-item-section side>
+              <q-item-label
+                class="text-subtitle1 text-weight-medium"
                 :class="{
                   'text-positive': transaction.amount > 0,
                   'text-negative': transaction.amount < 0,
                 }"
               >
                 {{ formatCurrency(transaction.amount) }}
-              </div>
-            </div>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
 
-            <!-- Separator -->
-            <q-separator color="grey-3" />
-          </div>
-        </div>
+          <q-separator color="grey-3" />
+        </template>
       </template>
     </div>
   </div>
@@ -165,37 +162,6 @@ const groupedTransactions = computed(() => {
 
   return groups;
 });
-
-function getCategoryIcon(categoryName?: string): string {
-  if (!categoryName) return 'attach_money';
-
-  const name = categoryName.toLowerCase();
-
-  if (name.includes('salary') || name.includes('income') || name.includes('revenue')) {
-    return 'img:src/assets/icons/Money.svg';
-  }
-  if (name.includes('car') || name.includes('transport')) {
-    return 'img:src/assets/icons/Car.svg';
-  }
-  if (name.includes('house') || name.includes('rent') || name.includes('mortgage')) {
-    return 'img:src/assets/icons/House.svg';
-  }
-  if (name.includes('food') || name.includes('restaurant') || name.includes('dining')) {
-    return 'img:src/assets/icons/Restaurant.svg';
-  }
-  if (name.includes('coffee')) {
-    return 'img:src/assets/icons/Coffee.svg';
-  }
-  if (name.includes('phone') || name.includes('mobile')) {
-    return 'img:src/assets/icons/Phone.svg';
-  }
-  if (name.includes('entertainment')) {
-    return 'img:src/assets/icons/Entertaintment.svg';
-  }
-
-  // Default icon if no match
-  return 'attach_money';
-}
 </script>
 
 <style lang="scss" scoped>

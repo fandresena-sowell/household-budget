@@ -49,6 +49,7 @@ CREATE TABLE "public"."categories" (
     "name" "text" NOT NULL,
     "type" "text" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"(),
+    "icon" "text" DEFAULT 'payments'::"text" NOT NULL,
     CONSTRAINT "categories_type_check" CHECK (("type" = ANY (ARRAY['income'::"text", 'expense'::"text"])))
 );
 ALTER TABLE "public"."categories" OWNER TO "postgres";

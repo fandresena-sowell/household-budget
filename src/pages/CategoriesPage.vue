@@ -33,6 +33,9 @@
           </div>
           <q-list bordered separator>
             <q-item v-for="category in incomeCategories" :key="category.id">
+              <q-item-section avatar>
+                <q-icon :name="category.icon" color="positive" size="sm" />
+              </q-item-section>
               <q-item-section>
                 <q-item-label>{{ category.name }}</q-item-label>
               </q-item-section>
@@ -72,6 +75,9 @@
           </div>
           <q-list bordered separator>
             <q-item v-for="category in expenseCategories" :key="category.id">
+              <q-item-section avatar>
+                <q-icon :name="category.icon" color="negative" size="sm" />
+              </q-item-section>
               <q-item-section>
                 <q-item-label>{{ category.name }}</q-item-label>
               </q-item-section>
@@ -141,6 +147,40 @@
               @update:model-value="() => validateField(newCategory, newCategoryErrors, 'type')"
             />
 
+            <q-select
+              v-model="newCategory.icon"
+              :options="iconOptions"
+              :label="t('pages.categories.iconLabel')"
+              color="positive"
+              dense
+              emit-value
+              map-options
+              use-chips
+              :error="!!newCategoryErrors.icon"
+              :error-message="newCategoryErrors.icon"
+              @update:model-value="() => validateField(newCategory, newCategoryErrors, 'icon')"
+            >
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section avatar>
+                    <q-icon :name="scope.opt.value" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.label }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+
+              <template v-slot:selected>
+                <q-chip dense>
+                  <q-avatar>
+                    <q-icon :name="newCategory.icon" />
+                  </q-avatar>
+                  {{ getIconLabel(newCategory.icon) }}
+                </q-chip>
+              </template>
+            </q-select>
+
             <div class="row justify-end q-gutter-sm">
               <q-btn
                 flat
@@ -153,7 +193,7 @@
                 :label="t('pages.categories.addButton')"
                 color="positive"
                 :loading="isAdding"
-                :disable="!newCategory.name || !newCategory.type"
+                :disable="!newCategory.name || !newCategory.type || !newCategory.icon"
               />
             </div>
           </q-form>
@@ -196,6 +236,42 @@
               "
             />
 
+            <q-select
+              v-model="editingCategory.icon"
+              :options="iconOptions"
+              :label="t('pages.categories.iconLabel')"
+              color="positive"
+              dense
+              use-chips
+              emit-value
+              map-options
+              :error="!!editingCategoryErrors.icon"
+              :error-message="editingCategoryErrors.icon"
+              @update:model-value="
+                () => validateField(editingCategory, editingCategoryErrors, 'icon')
+              "
+            >
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section avatar>
+                    <q-icon :name="scope.opt.value" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.label }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+
+              <template v-slot:selected>
+                <q-chip dense>
+                  <q-avatar>
+                    <q-icon :name="editingCategory.icon" />
+                  </q-avatar>
+                  {{ getIconLabel(editingCategory.icon) }}
+                </q-chip>
+              </template>
+            </q-select>
+
             <div class="row justify-end q-gutter-sm">
               <q-btn
                 flat
@@ -208,7 +284,7 @@
                 :label="t('pages.categories.saveButton')"
                 color="positive"
                 :loading="isEditing"
-                :disable="!editingCategory.name || !editingCategory.type"
+                :disable="!editingCategory.name || !editingCategory.type || !editingCategory.icon"
               />
             </div>
           </q-form>
@@ -295,31 +371,38 @@ const typeSchema = z.enum(['income', 'expense'], {
   required_error: 'Category type is required',
 });
 
+const iconSchema = z.string().min(1, 'Icon is required');
+
 const categorySchema = z.object({
   name: nameSchema,
   type: typeSchema,
+  icon: iconSchema,
 });
 
 // Form state with validation errors
 const newCategory = reactive({
   name: '',
   type: 'expense' as 'income' | 'expense',
+  icon: 'payments',
 });
 
 const newCategoryErrors = reactive({
   name: '',
   type: '',
+  icon: '',
 });
 
 const editingCategory = reactive({
   id: '',
   name: '',
   type: '' as 'income' | 'expense',
+  icon: '',
 });
 
 const editingCategoryErrors = reactive({
   name: '',
   type: '',
+  icon: '',
 });
 
 // Category type options for select
@@ -328,8 +411,37 @@ const typeOptions = computed(() => [
   { label: t('pages.categories.expenseOption'), value: 'expense' },
 ]);
 
+// Add icon options
+const iconOptions = computed(() => [
+  { label: t('pages.categories.icons.payments'), value: 'payments' },
+  { label: t('pages.categories.icons.work'), value: 'work' },
+  { label: t('pages.categories.icons.trendingUp'), value: 'trending_up' },
+  { label: t('pages.categories.icons.redeem'), value: 'redeem' },
+  { label: t('pages.categories.icons.shoppingCart'), value: 'shopping_cart' },
+  { label: t('pages.categories.icons.restaurant'), value: 'restaurant' },
+  { label: t('pages.categories.icons.car'), value: 'directions_car' },
+  { label: t('pages.categories.icons.home'), value: 'home' },
+  { label: t('pages.categories.icons.videoGames'), value: 'videogame_asset' },
+  { label: t('pages.categories.icons.utilities'), value: 'bolt' },
+  { label: t('pages.categories.icons.subscriptions'), value: 'subscriptions' },
+  { label: t('pages.categories.icons.fitness'), value: 'fitness_center' },
+  { label: t('pages.categories.icons.health'), value: 'health_and_safety' },
+  { label: t('pages.categories.icons.education'), value: 'school' },
+  { label: t('pages.categories.icons.travel'), value: 'flight' },
+  { label: t('pages.categories.icons.creditCard'), value: 'credit_card' },
+  { label: t('pages.categories.icons.savings'), value: 'savings' },
+  { label: t('pages.categories.icons.investment'), value: 'account_balance' },
+]);
+
+// Helper function to get icon label
+function getIconLabel(iconValue: string) {
+  // Convert snake_case to camelCase (e.g., trending_up → trendingUp)
+  const camelCaseKey = iconValue.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  return t(`pages.categories.icons.${camelCaseKey}`) || iconValue;
+}
+
 // Validate a single field
-function validateField(formData: any, errors: any, field: 'name' | 'type') {
+function validateField(formData: any, errors: any, field: 'name' | 'type' | 'icon') {
   try {
     if (field === 'name') {
       nameSchema.parse(formData.name);
@@ -337,12 +449,17 @@ function validateField(formData: any, errors: any, field: 'name' | 'type') {
     } else if (field === 'type') {
       typeSchema.parse(formData.type);
       errors.type = '';
+    } else if (field === 'icon') {
+      console.log('formData.icon', formData.icon);
+      iconSchema.parse(formData.icon);
+      errors.icon = '';
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
       error.errors.forEach((err) => {
         if (field === 'name') errors.name = err.message;
         if (field === 'type') errors.type = err.message;
+        if (field === 'icon') errors.icon = err.message;
       });
     }
   }
@@ -354,6 +471,7 @@ function validateForm(formData: any, errors: any) {
     categorySchema.parse(formData);
     errors.name = '';
     errors.type = '';
+    errors.icon = '';
     return true;
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -361,6 +479,7 @@ function validateForm(formData: any, errors: any) {
         const path = err.path[0] as string;
         if (path === 'name') errors.name = err.message;
         if (path === 'type') errors.type = err.message;
+        if (path === 'icon') errors.icon = err.message;
       });
     }
     return false;
@@ -393,6 +512,7 @@ async function addCategory() {
     const { error } = await categoriesStore.createCategory({
       name: newCategory.name,
       type: newCategory.type,
+      icon: newCategory.icon,
       household_id: householdStore.householdId,
       created_by_user_id: authStore.userId,
     });
@@ -403,8 +523,10 @@ async function addCategory() {
     addDialog.value = false;
     newCategory.name = '';
     newCategory.type = 'expense';
+    newCategory.icon = 'payments';
     newCategoryErrors.name = '';
     newCategoryErrors.type = '';
+    newCategoryErrors.icon = '';
 
     $q.notify({
       message: 'Category added successfully',
@@ -425,8 +547,10 @@ function openEditDialog(category: Category) {
   editingCategory.id = category.id;
   editingCategory.name = category.name;
   editingCategory.type = category.type;
+  editingCategory.icon = category.icon;
   editingCategoryErrors.name = '';
   editingCategoryErrors.type = '';
+  editingCategoryErrors.icon = '';
   editDialog.value = true;
 }
 
@@ -438,6 +562,7 @@ async function saveEdit() {
     const { error } = await categoriesStore.updateCategory(editingCategory.id, {
       name: editingCategory.name,
       type: editingCategory.type,
+      icon: editingCategory.icon,
     });
 
     if (error) throw error;
@@ -494,8 +619,10 @@ function openAddCategoryDialog() {
   // Reset form state
   newCategory.name = '';
   newCategory.type = 'expense';
+  newCategory.icon = 'payments';
   newCategoryErrors.name = '';
   newCategoryErrors.type = '';
+  newCategoryErrors.icon = '';
   addDialog.value = true;
 }
 

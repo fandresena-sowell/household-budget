@@ -37,6 +37,7 @@
           borderless
           :input-class="amountInputClass"
           class="text-h3 text-weight-bold"
+          @focus="selectInputContent"
           :rules="[
             (val) =>
               (val !== null && val !== '' && !isNaN(val)) ||
@@ -332,6 +333,12 @@ function onSubmit() {
     emit('submit', submitData);
   } finally {
     isSubmitting.value = false;
+  }
+}
+
+function selectInputContent(event: Event) {
+  if (event.target instanceof HTMLInputElement) {
+    event.target.select();
   }
 }
 
