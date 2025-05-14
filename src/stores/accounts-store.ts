@@ -60,12 +60,14 @@ export const useAccountsStore = defineStore('accounts', () => {
       if (fetchError) throw fetchError;
 
       if (data) {
-        // For each account, calculate the current balance
+        // For each account, calculate the current balance as of today
+        const today = new Date().toISOString().split('T')[0] as string; // Format: YYYY-MM-DD
         const accountsWithBalance = await Promise.all(
           data.map(async (account) => {
-            const { data: balanceData } = await supabase.rpc('fn_get_account_balance', {
+            const { data: balanceData } = await supabase.rpc('fn_get_account_balance_as_of', {
               p_account_id: account.id,
-            } as unknown as { account_id: string });
+              p_date: today,
+            });
 
             return {
               ...account,

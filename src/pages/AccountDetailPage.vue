@@ -161,7 +161,7 @@ import { useAccountsStore } from 'src/stores/accounts-store';
 import { useTransactionsStore, type Transaction } from 'src/stores/transactions-store';
 import { useHouseholdStore } from 'src/stores/household-store';
 import { useAuthStore } from 'src/stores/auth-store';
-import { formatCurrency } from 'src/utils/formatters';
+import { useFormatters } from 'src/composables/use-formatters';
 import TransactionList from 'src/components/TransactionList.vue';
 import TransactionForm from 'src/components/TransactionForm.vue';
 
@@ -174,7 +174,7 @@ const householdStore = useHouseholdStore();
 const accountsStore = useAccountsStore();
 const transactionsStore = useTransactionsStore();
 const authStore = useAuthStore();
-
+const { formatCurrency } = useFormatters();
 // State
 const transactionDialog = ref(false);
 const isEdit = ref(false);

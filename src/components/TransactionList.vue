@@ -83,7 +83,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useTransactionsStore } from 'src/stores/transactions-store';
 import type { Transaction } from 'src/stores/transactions-store';
-import { formatCurrency, formatDate } from 'src/utils/formatters';
+import { useFormatters } from 'src/composables/use-formatters';
 
 const { t } = useI18n();
 
@@ -104,6 +104,7 @@ defineEmits<{
 
 // Stores
 const transactionsStore = useTransactionsStore();
+const { formatCurrency, formatDate } = useFormatters();
 
 // Computed
 const isLoading = computed(() => transactionsStore.isLoading);

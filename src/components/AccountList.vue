@@ -138,12 +138,13 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAccountsStore } from 'src/stores/accounts-store';
 import { useTransactionsStore } from 'src/stores/transactions-store';
-import { formatCurrency } from 'src/utils/formatters';
+import { useFormatters } from 'src/composables/use-formatters';
 import { format, startOfDay, endOfDay } from 'date-fns';
 
 const { t } = useI18n();
 const accountsStore = useAccountsStore();
 const router = useRouter();
+const { formatCurrency } = useFormatters();
 const currentPeriod = ref('monthly');
 const slide = ref('balance');
 

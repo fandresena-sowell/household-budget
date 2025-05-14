@@ -5,6 +5,7 @@ ALTER TABLE "public"."household_members" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."households" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."transactions" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."users" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."budget_allocations" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow read access to all users" ON "public"."account_types" FOR SELECT USING (true);
 CREATE POLICY "Allow household members to read accounts" ON "public"."accounts" FOR SELECT USING ("public"."is_household_member"("household_id"));
@@ -19,4 +20,8 @@ CREATE POLICY "Allow household members to read transactions" ON "public"."transa
 CREATE POLICY "Allow household members to manage transactions" ON "public"."transactions" FOR ALL USING ("public"."is_household_member"("household_id"));
 CREATE POLICY "Allow all users to read user info" ON "public"."users" FOR SELECT USING (true);
 CREATE POLICY "Users can insert their own profile." ON "public"."users" FOR INSERT WITH CHECK (("auth"."uid"() = "id"));
-CREATE POLICY "Users can update own profile." ON "public"."users" FOR UPDATE USING (("auth"."uid"() = "id")); 
+CREATE POLICY "Users can update own profile." ON "public"."users" FOR UPDATE USING (("auth"."uid"() = "id"));
+CREATE POLICY "Allow household members to read budget allocations" ON "public"."budget_allocations" FOR SELECT USING ("public"."is_household_member"("household_id"));
+CREATE POLICY "Allow household members to create and update budget allocations" ON "public"."budget_allocations" FOR INSERT WITH CHECK ("public"."is_household_member"("household_id"));
+CREATE POLICY "Allow household members to update budget allocations" ON "public"."budget_allocations" FOR UPDATE USING ("public"."is_household_member"("household_id"));
+CREATE POLICY "Allow household owners to delete budget allocations" ON "public"."budget_allocations" FOR DELETE USING ("public"."is_household_owner"("household_id")); 

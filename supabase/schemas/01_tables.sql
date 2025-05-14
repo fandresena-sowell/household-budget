@@ -122,3 +122,28 @@ CREATE INDEX IF NOT EXISTS idx_categories_household_id_name ON public.categories
 CREATE INDEX IF NOT EXISTS idx_transactions_account_id_status ON public.transactions (account_id, status);
 CREATE INDEX IF NOT EXISTS idx_transactions_account_id_tx_date_desc ON public.transactions (account_id, transaction_date DESC);
 CREATE INDEX IF NOT EXISTS idx_household_members_user_id ON public.household_members (user_id);
+
+CREATE TABLE "public"."budget_allocations" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "household_id" "uuid" NOT NULL,
+    "created_by_user_id" "uuid" NOT NULL,
+    "category_id" "uuid" NOT NULL,
+    "month" "date" NOT NULL,
+    "allocated_amount" numeric(10,2) DEFAULT 0 NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"()
+);
+ALTER TABLE "public"."budget_allocations" OWNER TO "postgres";
+ALTER TABLE ONLY "public"."budget_allocations"
+    ADD CONSTRAINT "budget_allocations_pkey" PRIMARY KEY ("id");
+ALTER TABLE ONLY "public"."budget_allocations"
+    ADD CONSTRAINT "budget_allocations_household_id_category_id_month_key" UNIQUE ("household_id", "category_id", "month");
+ALTER TABLE ONLY "public"."budget_allocations"
+    ADD CONSTRAINT "budget_allocations_household_id_fkey" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE CASCADE;
+ALTER TABLE ONLY "public"."budget_allocations"
+    ADD CONSTRAINT "budget_allocations_created_by_user_id_fkey" FOREIGN KEY ("created_by_user_id") REFERENCES "public"."users"("id");
+ALTER TABLE ONLY "public"."budget_allocations"
+    ADD CONSTRAINT "budget_allocations_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE CASCADE;
+
+CREATE INDEX IF NOT EXISTS idx_budget_allocations_household_id_month ON public.budget_allocations (household_id, month);
+CREATE INDEX IF NOT EXISTS idx_budget_allocations_category_id ON public.budget_allocations (category_id);

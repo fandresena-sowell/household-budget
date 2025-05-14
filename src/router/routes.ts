@@ -22,6 +22,11 @@ const routes: RouteRecordRaw[] = [
         path: 'settings/categories',
         component: () => import('pages/CategoriesPage.vue'),
       },
+      {
+        name: 'budget',
+        path: 'budget',
+        component: () => import('pages/BudgetPage.vue'),
+      },
     ],
   },
 

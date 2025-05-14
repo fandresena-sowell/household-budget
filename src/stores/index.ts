@@ -5,6 +5,7 @@ import { createPinia } from 'pinia';
 import { useAuthStore } from './auth-store';
 import { useHouseholdStore } from './household-store';
 import { useAccountsStore } from './accounts-store';
+import { useBudgetStore } from './budget-store';
 
 /*
  * When adding new properties to stores, you should also
@@ -28,4 +29,4 @@ export default defineStore((/* { ssrContext } */) => {
 });
 
 // Export stores for easier imports
-export { useAuthStore, useHouseholdStore, useAccountsStore };
+export { useAuthStore, useHouseholdStore, useAccountsStore, useBudgetStore };

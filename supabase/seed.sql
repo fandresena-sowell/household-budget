@@ -199,9 +199,9 @@ INSERT INTO "public"."households" ("id", "name", "created_at") VALUES
 --
 
 INSERT INTO "public"."accounts" ("id", "household_id", "created_by_user_id", "name", "account_type_id", "initial_balance", "initial_balance_date", "created_at") VALUES
-	('4133bd1a-ff26-404a-8157-f9ad30d1b759', '4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', 'Fandresena''s Account', '2a0fe853-284f-443c-9c19-01492f290292', 5000.00, '2025-04-26 11:48:58.935383+00', '2025-04-26 11:48:58.935383+00'),
-	('13cbdb66-f000-40c8-82fd-5bab02481321', '4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', 'Tandrify''s Account', 'f2774f6b-3841-420b-ae9a-40ae88c154dc', 1000.00, '2025-04-26 11:49:10.135977+00', '2025-04-26 11:49:10.135977+00'),
-	('db9f297e-98cf-45b6-bdab-0fd05d660cb0', 'e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'Main Account', '2a0fe853-284f-443c-9c19-01492f290292', 100.00, '2025-04-01 15:23:42+00', '2025-04-28 15:23:47.061378+00');
+	('4133bd1a-ff26-404a-8157-f9ad30d1b759', '4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', 'Fandresena''s Account', '2a0fe853-284f-443c-9c19-01492f290292', 5000.00, '2025-03-01 00:00:00+00', '2025-04-26 11:48:58.935383+00'),
+	('13cbdb66-f000-40c8-82fd-5bab02481321', '4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', 'Tandrify''s Account', 'f2774f6b-3841-420b-ae9a-40ae88c154dc', 1000.00, '2025-03-01 00:00:00+00', '2025-04-26 11:49:10.135977+00'),
+	('db9f297e-98cf-45b6-bdab-0fd05d660cb0', 'e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'Main Account', '2a0fe853-284f-443c-9c19-01492f290292', 100.00, '2025-03-01 00:00:00+00', '2025-04-28 15:23:47.061378+00');
 
 
 --
@@ -259,42 +259,88 @@ INSERT INTO "public"."users" ("id", "email", "first_name", "last_name", "avatar_
 -- Data for Name: transactions; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+INSERT INTO "public"."transactions" ("household_id", "created_by_user_id", "account_id", "category_id", "amount", "description", "transaction_date", "status", "created_at") VALUES
+	-- March 2025 transactions for Fandresena's Household
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '55c596da-eac6-4e1a-847e-55e6248ad961', 3500.00, 'Monthly salary', '2025-03-01 09:00:00+00', 'completed', '2025-03-01 09:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '462c22b8-f893-447a-95ca-ddfc56d03960', -230.00, 'Grocery shopping', '2025-03-05 10:30:00+00', 'completed', '2025-03-05 10:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '903e40d3-cf26-4c92-9c57-a70127e0548f', -75.00, 'Dinner out', '2025-03-10 19:15:00+00', 'completed', '2025-03-10 19:15:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '660d2fb4-3b12-4275-9775-655539f0cecf', -1200.00, 'Monthly rent', '2025-03-03 08:00:00+00', 'completed', '2025-03-03 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', 'd2c6c336-6f78-4208-9168-7a8a0665f9ca', -140.00, 'Electricity bill', '2025-03-15 09:30:00+00', 'completed', '2025-03-15 09:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', 'a0d37bfe-015d-479c-9b2e-7f90893c3e19', '13cbdb66-f000-40c8-82fd-5bab02481321', '78ba0afc-15b0-4ce1-a380-cd32d4e8b2e5', 350.00, 'Freelance payment', '2025-03-20 15:20:00+00', 'completed', '2025-03-20 15:20:00+00'),
+	
+	-- March 2025 transactions for Test's Household
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', 'f8c300bf-cc3f-401d-abf9-b251a31c4b0c', 2000.00, 'Monthly salary', '2025-03-01 10:00:00+00', 'completed', '2025-03-01 10:00:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '8abecbb9-13b7-453e-ab80-6ad6652463ed', -140.00, 'Grocery shopping', '2025-03-08 11:30:00+00', 'completed', '2025-03-08 11:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '0ae6aa16-0f10-4827-80fb-e7cca209c3d0', -800.00, 'Rent payment', '2025-03-05 09:30:00+00', 'completed', '2025-03-05 09:30:00+00'),
+	
+	-- April 2025 transactions for Fandresena's Household
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '55c596da-eac6-4e1a-847e-55e6248ad961', 3500.00, 'Monthly salary', '2025-04-01 09:00:00+00', 'completed', '2025-04-01 09:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '462c22b8-f893-447a-95ca-ddfc56d03960', -240.00, 'Grocery shopping', '2025-04-06 10:30:00+00', 'completed', '2025-04-06 10:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '903e40d3-cf26-4c92-9c57-a70127e0548f', -90.00, 'Restaurant dinner', '2025-04-12 19:30:00+00', 'completed', '2025-04-12 19:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '660d2fb4-3b12-4275-9775-655539f0cecf', -1200.00, 'Monthly rent', '2025-04-03 08:00:00+00', 'completed', '2025-04-03 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', 'd2c6c336-6f78-4208-9168-7a8a0665f9ca', -145.00, 'Electricity bill', '2025-04-15 09:30:00+00', 'completed', '2025-04-15 09:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', 'a0d37bfe-015d-479c-9b2e-7f90893c3e19', '13cbdb66-f000-40c8-82fd-5bab02481321', '78ba0afc-15b0-4ce1-a380-cd32d4e8b2e5', 380.00, 'Freelance payment', '2025-04-18 15:20:00+00', 'completed', '2025-04-18 15:20:00+00'),
+	
+	-- April 2025 transactions for Test's Household
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', 'f8c300bf-cc3f-401d-abf9-b251a31c4b0c', 2000.00, 'Monthly salary', '2025-04-01 10:00:00+00', 'completed', '2025-04-01 10:00:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '8abecbb9-13b7-453e-ab80-6ad6652463ed', -145.00, 'Grocery shopping', '2025-04-09 11:30:00+00', 'completed', '2025-04-09 11:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '0ae6aa16-0f10-4827-80fb-e7cca209c3d0', -800.00, 'Rent payment', '2025-04-05 09:30:00+00', 'completed', '2025-04-05 09:30:00+00'),
+	
+	-- May 2025 transactions
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '55c596da-eac6-4e1a-847e-55e6248ad961', 3500.00, 'Monthly salary', '2025-05-01 09:00:00+00', 'completed', '2025-05-01 09:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '462c22b8-f893-447a-95ca-ddfc56d03960', -250.00, 'Weekly grocery shopping', '2025-05-03 10:30:00+00', 'completed', '2025-05-03 10:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '903e40d3-cf26-4c92-9c57-a70127e0548f', -85.00, 'Dinner at Italian restaurant', '2025-05-04 19:45:00+00', 'completed', '2025-05-04 19:45:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '69a6ace3-a759-450f-aab9-26dda1f50cda', -120.00, 'Gas refill', '2025-05-05 12:15:00+00', 'completed', '2025-05-05 12:15:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '660d2fb4-3b12-4275-9775-655539f0cecf', -1200.00, 'Monthly rent', '2025-05-02 08:00:00+00', 'completed', '2025-05-02 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', 'd2c6c336-6f78-4208-9168-7a8a0665f9ca', -150.00, 'Electricity bill', '2025-05-05 09:30:00+00', 'completed', '2025-05-05 09:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '4133bd1a-ff26-404a-8157-f9ad30d1b759', '89084ad7-215c-4ea8-bc14-c576f2753ec9', -45.00, 'Movie tickets', '2025-05-06 20:00:00+00', 'completed', '2025-05-06 20:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', 'a0d37bfe-015d-479c-9b2e-7f90893c3e19', '13cbdb66-f000-40c8-82fd-5bab02481321', '78ba0afc-15b0-4ce1-a380-cd32d4e8b2e5', 400.00, 'Freelance project payment', '2025-05-04 15:20:00+00', 'completed', '2025-05-04 15:20:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', 'a0d37bfe-015d-479c-9b2e-7f90893c3e19', '13cbdb66-f000-40c8-82fd-5bab02481321', '462c22b8-f893-447a-95ca-ddfc56d03960', -80.00, 'Grocery shopping', '2025-05-05 16:45:00+00', 'completed', '2025-05-05 16:45:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', 'a0d37bfe-015d-479c-9b2e-7f90893c3e19', '13cbdb66-f000-40c8-82fd-5bab02481321', '903e40d3-cf26-4c92-9c57-a70127e0548f', -35.00, 'Coffee shop', '2025-05-06 09:00:00+00', 'completed', '2025-05-06 09:00:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', 'f8c300bf-cc3f-401d-abf9-b251a31c4b0c', 2000.00, 'Monthly salary', '2025-05-01 10:00:00+00', 'completed', '2025-05-01 10:00:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '8abecbb9-13b7-453e-ab80-6ad6652463ed', -150.00, 'Grocery shopping', '2025-05-02 11:30:00+00', 'completed', '2025-05-02 11:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '483fbc34-3983-413a-a0d5-01f9f69099d7', -60.00, 'Restaurant dinner', '2025-05-03 19:00:00+00', 'completed', '2025-05-03 19:00:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '0ae6aa16-0f10-4827-80fb-e7cca209c3d0', -800.00, 'Rent payment', '2025-05-04 09:30:00+00', 'completed', '2025-05-04 09:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', 'e7a235e2-a8f7-41e4-864d-35883693c029', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '3f6a1516-2768-4e5d-8223-0c369261897f', -100.00, 'Internet bill', '2025-05-05 10:15:00+00', 'completed', '2025-05-05 10:15:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', 'e7a235e2-a8f7-41e4-864d-35883693c029', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', 'cdb97a3e-e7df-4f18-9d2e-6e6ef1edecac', -30.00, 'Streaming service subscription', '2025-05-06 14:20:00+00', 'completed', '2025-05-06 14:20:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', 'e7a235e2-a8f7-41e4-864d-35883693c029', 'db9f297e-98cf-45b6-bdab-0fd05d660cb0', '5007efbc-a07a-40ca-bb88-c9898d0a465b', 300.00, 'Side project payment', '2025-05-07 16:00:00+00', 'completed', '2025-05-07 16:00:00+00');
 
 
 --
--- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+-- Data for Name: budget_allocations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-
-
---
--- Data for Name: objects; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
---
-
-
-
---
--- Data for Name: s3_multipart_uploads; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
---
-
-
-
---
--- Data for Name: s3_multipart_uploads_parts; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
---
-
-
-
---
--- Data for Name: hooks; Type: TABLE DATA; Schema: supabase_functions; Owner: supabase_functions_admin
---
-
-
-
---
--- Data for Name: secrets; Type: TABLE DATA; Schema: vault; Owner: supabase_admin
---
-
+INSERT INTO "public"."budget_allocations" ("household_id", "created_by_user_id", "category_id", "month", "allocated_amount", "created_at", "updated_at") VALUES
+	-- March 2025 budget allocations for Fandresena's Household
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '462c22b8-f893-447a-95ca-ddfc56d03960', '2025-03-01', 300.00, '2025-03-01 08:00:00+00', '2025-03-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '903e40d3-cf26-4c92-9c57-a70127e0548f', '2025-03-01', 100.00, '2025-03-01 08:00:00+00', '2025-03-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '69a6ace3-a759-450f-aab9-26dda1f50cda', '2025-03-01', 150.00, '2025-03-01 08:00:00+00', '2025-03-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '660d2fb4-3b12-4275-9775-655539f0cecf', '2025-03-01', 1200.00, '2025-03-01 08:00:00+00', '2025-03-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', 'd2c6c336-6f78-4208-9168-7a8a0665f9ca', '2025-03-01', 180.00, '2025-03-01 08:00:00+00', '2025-03-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '89084ad7-215c-4ea8-bc14-c576f2753ec9', '2025-03-01', 80.00, '2025-03-01 08:00:00+00', '2025-03-01 08:00:00+00'),
+	
+	-- March 2025 budget allocations for Test's Household
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '8abecbb9-13b7-453e-ab80-6ad6652463ed', '2025-03-01', 200.00, '2025-03-01 08:30:00+00', '2025-03-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '483fbc34-3983-413a-a0d5-01f9f69099d7', '2025-03-01', 120.00, '2025-03-01 08:30:00+00', '2025-03-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '0ae6aa16-0f10-4827-80fb-e7cca209c3d0', '2025-03-01', 800.00, '2025-03-01 08:30:00+00', '2025-03-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '3f6a1516-2768-4e5d-8223-0c369261897f', '2025-03-01', 130.00, '2025-03-01 08:30:00+00', '2025-03-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'cdb97a3e-e7df-4f18-9d2e-6e6ef1edecac', '2025-03-01', 80.00, '2025-03-01 08:30:00+00', '2025-03-01 08:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '462c22b8-f893-447a-95ca-ddfc56d03960', '2025-05-01', 400.00, '2025-05-01 08:00:00+00', '2025-05-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '903e40d3-cf26-4c92-9c57-a70127e0548f', '2025-05-01', 150.00, '2025-05-01 08:00:00+00', '2025-05-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '69a6ace3-a759-450f-aab9-26dda1f50cda', '2025-05-01', 200.00, '2025-05-01 08:00:00+00', '2025-05-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '660d2fb4-3b12-4275-9775-655539f0cecf', '2025-05-01', 1200.00, '2025-05-01 08:00:00+00', '2025-05-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', 'd2c6c336-6f78-4208-9168-7a8a0665f9ca', '2025-05-01', 200.00, '2025-05-01 08:00:00+00', '2025-05-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '89084ad7-215c-4ea8-bc14-c576f2753ec9', '2025-05-01', 100.00, '2025-05-01 08:00:00+00', '2025-05-01 08:00:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '8abecbb9-13b7-453e-ab80-6ad6652463ed', '2025-05-01', 300.00, '2025-05-01 08:30:00+00', '2025-05-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '483fbc34-3983-413a-a0d5-01f9f69099d7', '2025-05-01', 150.00, '2025-05-01 08:30:00+00', '2025-05-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '0ae6aa16-0f10-4827-80fb-e7cca209c3d0', '2025-05-01', 800.00, '2025-05-01 08:30:00+00', '2025-05-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '3f6a1516-2768-4e5d-8223-0c369261897f', '2025-05-01', 150.00, '2025-05-01 08:30:00+00', '2025-05-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', 'cdb97a3e-e7df-4f18-9d2e-6e6ef1edecac', '2025-05-01', 100.00, '2025-05-01 08:30:00+00', '2025-05-01 08:30:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '462c22b8-f893-447a-95ca-ddfc56d03960', '2025-04-01', 350.00, '2025-04-01 08:00:00+00', '2025-04-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '903e40d3-cf26-4c92-9c57-a70127e0548f', '2025-04-01', 120.00, '2025-04-01 08:00:00+00', '2025-04-01 08:00:00+00'),
+	('4b3cb6ce-b3d6-4934-981b-ba0e7a97f67c', '7f391dd8-0c4b-4c4d-bbe9-941959e59a34', '660d2fb4-3b12-4275-9775-655539f0cecf', '2025-04-01', 1200.00, '2025-04-01 08:00:00+00', '2025-04-01 08:00:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '8abecbb9-13b7-453e-ab80-6ad6652463ed', '2025-04-01', 250.00, '2025-04-01 08:30:00+00', '2025-04-01 08:30:00+00'),
+	('e8796342-268d-4018-8ac4-b81e3ae4f975', '557da302-4fe3-4f77-a6f8-89b4a876af70', '0ae6aa16-0f10-4827-80fb-e7cca209c3d0', '2025-04-01', 800.00, '2025-04-01 08:30:00+00', '2025-04-01 08:30:00+00');
 
 
 --

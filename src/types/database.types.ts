@@ -1,6 +1,31 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+          extensions?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       account_types: {
@@ -66,11 +91,67 @@ export type Database = {
           },
         ];
       };
+      budget_allocations: {
+        Row: {
+          allocated_amount: number;
+          category_id: string;
+          created_at: string | null;
+          created_by_user_id: string;
+          household_id: string;
+          id: string;
+          month: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          allocated_amount?: number;
+          category_id: string;
+          created_at?: string | null;
+          created_by_user_id: string;
+          household_id: string;
+          id?: string;
+          month: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          allocated_amount?: number;
+          category_id?: string;
+          created_at?: string | null;
+          created_by_user_id?: string;
+          household_id?: string;
+          id?: string;
+          month?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'budget_allocations_category_id_fkey';
+            columns: ['category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'budget_allocations_created_by_user_id_fkey';
+            columns: ['created_by_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'budget_allocations_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       categories: {
         Row: {
           created_at: string | null;
           created_by_user_id: string;
           household_id: string;
+          icon: string;
           id: string;
           name: string;
           type: string;
@@ -79,6 +160,7 @@ export type Database = {
           created_at?: string | null;
           created_by_user_id: string;
           household_id: string;
+          icon?: string;
           id?: string;
           name: string;
           type: string;
@@ -87,6 +169,7 @@ export type Database = {
           created_at?: string | null;
           created_by_user_id?: string;
           household_id?: string;
+          icon?: string;
           id?: string;
           name?: string;
           type?: string;
@@ -133,36 +216,27 @@ export type Database = {
       households: {
         Row: {
           created_at: string | null;
+          currency_symbol: string;
           id: string;
           name: string;
+          number_format: string;
+          symbol_position: string;
         };
         Insert: {
           created_at?: string | null;
+          currency_symbol?: string;
           id?: string;
           name: string;
+          number_format?: string;
+          symbol_position?: string;
         };
         Update: {
           created_at?: string | null;
+          currency_symbol?: string;
           id?: string;
           name?: string;
-        };
-        Relationships: [];
-      };
-      todos: {
-        Row: {
-          content: string | null;
-          created_at: string;
-          id: number;
-        };
-        Insert: {
-          content?: string | null;
-          created_at?: string;
-          id?: number;
-        };
-        Update: {
-          content?: string | null;
-          created_at?: string;
-          id?: number;
+          number_format?: string;
+          symbol_position?: string;
         };
         Relationships: [];
       };
@@ -219,6 +293,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'transactions_created_by_user_id_fkey';
+            columns: ['created_by_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'transactions_household_id_fkey';
             columns: ['household_id'];
             isOneToOne: false;
@@ -229,62 +310,85 @@ export type Database = {
       };
       users: {
         Row: {
-          id: string;
-          email: string;
-          first_name: string | null;
-          last_name: string | null;
           avatar_url: string | null;
           created_at: string;
+          email: string;
+          first_name: string | null;
+          id: string;
+          last_name: string | null;
           updated_at: string;
         };
         Insert: {
-          id: string;
-          email: string;
-          first_name?: string | null;
-          last_name?: string | null;
           avatar_url?: string | null;
           created_at?: string;
+          email: string;
+          first_name?: string | null;
+          id: string;
+          last_name?: string | null;
           updated_at?: string;
         };
         Update: {
-          id?: string;
-          email?: string;
-          first_name?: string | null;
-          last_name?: string | null;
           avatar_url?: string | null;
           created_at?: string;
+          email?: string;
+          first_name?: string | null;
+          id?: string;
+          last_name?: string | null;
           updated_at?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: 'users_id_fkey';
-            columns: ['id'];
-            isOneToOne: true;
-            referencedRelation: 'users';
-            referencedColumns: ['id'];
-            referencedTableSchema: 'auth';
-          },
-        ];
+        Relationships: [];
       };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      fn_check_household_exists: {
+        Args: { household_id: string };
+        Returns: boolean;
+      };
+      fn_create_default_categories_for_household: {
+        Args: { p_household_id: string; p_created_by_user_id: string };
+        Returns: undefined;
+      };
       fn_create_household_for_user: {
         Args: { user_id: string; household_name: string };
         Returns: string;
       };
+      fn_ensure_household_has_categories: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       fn_ensure_user_in_household: {
-        Args: { user_id: string; user_first_name: string };
+        Args: {
+          user_id: string;
+          user_first_name: string;
+          target_household_id?: string;
+        };
         Returns: string;
       };
       fn_get_account_balance: {
-        Args: { account_id: string };
+        Args: { p_account_id: string };
         Returns: number;
       };
-      fn_check_household_exists: {
-        Args: { household_id: string };
+      fn_get_account_balance_as_of: {
+        Args: { p_account_id: string; p_date: string };
+        Returns: number;
+      };
+      fn_get_available_to_budget: {
+        Args: { p_household_id: string; p_month: string };
+        Returns: number;
+      };
+      fn_get_category_available: {
+        Args: { p_household_id: string; p_category_id: string; p_month: string };
+        Returns: number;
+      };
+      is_household_member: {
+        Args: { household_uuid: string };
+        Returns: boolean;
+      };
+      is_household_owner: {
+        Args: { household_uuid: string };
         Returns: boolean;
       };
     };
@@ -371,8 +475,9 @@ export type TablesUpdate<
     : never;
 
 export type Enums<
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums'] | { schema: keyof Database },
+  DefaultSchemaEnumNameOrOptions extends
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+    keyof DefaultSchema['Enums'] | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof Database;
   }
@@ -400,6 +505,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
