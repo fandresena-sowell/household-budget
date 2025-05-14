@@ -3794,10 +3794,10 @@ strip-json-comments@^3.1.1:
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz#31f1281b3832630434831c310c01cccda8cbe006"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
-supabase@^2.22.6:
-  version "2.22.6"
-  resolved "https://registry.yarnpkg.com/supabase/-/supabase-2.22.6.tgz#44e7f215d57ede89feea62ca5cc74c9a7dd6d116"
-  integrity sha512-W/A5JlKqrp0pxSaFRYwlWpk+aCql9xUp1ZeLVarRVtqsT6QPLqLsLPIwES0005lQKS3QBbdWDgYThEStPM1kxQ==
+supabase@^2.22.12:
+  version "2.22.12"
+  resolved "https://registry.yarnpkg.com/supabase/-/supabase-2.22.12.tgz#56daab57b5627b888023197089b52ad6b2e165c6"
+  integrity sha512-PWQT+uzwAXcamM/FK60CaWRjVwsX2SGW5vF7edbiTQC6vsNvTBnSIvd1yiXsIpq32uzQFu+iOrayxaTQytNiTw==
   dependencies:
     bin-links "^5.0.0"
     https-proxy-agent "^7.0.2"
