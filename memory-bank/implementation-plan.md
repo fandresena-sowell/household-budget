@@ -173,7 +173,49 @@
     - **Instruction:** Allow users to choose between comma-separated (17,000.50) or plain (170000) number formatting.
     - **Test:** Change the number formatting in settings. Verify the formatting updates throughout the app.
 
-## Phase 6: Household Collaboration
+## Phase 6: YNAB-Style Budget Management
+
+**Goal:** Implement envelope-based budgeting following the YNAB philosophy, where users allocate available funds to specific category "envelopes" and spend from these envelopes when making transactions.
+
+1.  **Create Budget Database Schema:**
+
+    - **Instruction:** Use the Supabase SQL Editor to create the `budget_allocations` table with the following columns: `id` (UUID, PK), `household_id` (UUID, NOT NULL, FK to `households(id)`), `created_by_user_id` (UUID, NOT NULL, FK to `auth.users(id)`), `category_id` (UUID, NOT NULL, FK to `categories(id)`), `month` (DATE, NOT NULL), `allocated_amount` (NUMERIC(10, 2), NOT NULL, DEFAULT 0), `created_at` (TIMESTAMPTZ, default `now()`), `updated_at` (TIMESTAMPTZ, default `now()`). Add a UNIQUE constraint on (`household_id`, `category_id`, `month`).
+    - **Instruction:** Create two PostgreSQL functions: `fn_get_category_available(p_household_id UUID, p_category_id UUID, p_month DATE)` to calculate the remaining budget for a category in a specific month, and `fn_get_available_to_budget(p_household_id UUID, p_month DATE)` to calculate the total unallocated money.
+    - **Instruction:** Create RLS policies for the `budget_allocations` table, allowing household members to view and create allocations, but only owners can delete them.
+    - **Test:** Verify the table, functions, and policies are created correctly in Supabase.
+
+2.  **Implement Budget Management Page:**
+
+    - **Instruction:** Create a new page (`pages/BudgetPage.vue`) with a month selector at the top. Display the current month by default. Add navigation controls to move to previous/next months.
+    - **Instruction:** Create a Pinia store (`src/stores/budget-store.js`) with state for the selected month, budget allocations, and available-to-budget amount. Add actions to fetch budget data, create allocations, and update existing allocations.
+    - **Instruction:** Display the "Available to Budget" amount prominently on the page, using the `fn_get_available_to_budget` function.
+    - **Test:** Navigate to the budget page, verify the month selector works, and the available amount is displayed correctly.
+
+3.  **Create Budget Allocation Interface:**
+
+    - **Instruction:** Create a component that lists all expense categories for the household with their current allocations for the selected month. For each category, show:
+      - Category name and icon
+      - Input field for the allocated amount (prefilled with current allocation, if any)
+      - Display of amount spent so far this month
+      - Display of remaining amount (allocated minus spent)
+    - **Instruction:** Implement the ability to allocate available funds to categories, ensuring the total allocated doesn't exceed the available amount.
+    - **Instruction:** Add a "Quick Budget" feature to suggest allocations based on previous month's spending, previous month's allocations, or average spending.
+    - **Test:** Try allocating funds to different categories. Verify the available-to-budget amount decreases accordingly. Verify spending is accurately reflected.
+
+4.  **Integrate with Transactions:**
+
+    - **Instruction:** Modify the transaction form (`components/TransactionForm.vue`) to show the available budget for the selected category when an expense transaction is being created.
+    - **Instruction:** Add a warning if the transaction amount would exceed the available budget for that category.
+    - **Instruction:** Implement an option to reallocate funds between categories if a transaction would cause overspending.
+    - **Test:** Create expense transactions for categories with budget allocations. Verify the warnings appear appropriately and budget amounts update after transactions are created.
+
+5.  **Add Budget Progress Visualization:**
+    - **Instruction:** Create a component (`components/BudgetProgress.vue`) that visualizes the budget progress for a category using a progress bar or circular indicator.
+    - **Instruction:** Color-code the indicators: green for less than 80% used, yellow for 80-99% used, red for overspent (>100% used).
+    - **Instruction:** Add this visualization to both the budget page and to the transaction form when a category is selected.
+    - **Test:** Create various scenarios with different spending levels. Verify the visualizations update correctly and show the appropriate colors.
+
+## Phase 7: Household Collaboration
 
 **Goal:** Implement functionality for household owners to invite and manage members.
 

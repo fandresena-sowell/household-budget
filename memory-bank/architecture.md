@@ -73,6 +73,20 @@
 | status             | TEXT           | NOT NULL, DEFAULT 'completed', CHECK (status IN ('pending', 'completed', 'canceled')) | Transaction status                         |
 | created_at         | TIMESTAMPTZ    | DEFAULT now()                                                                         | Transaction creation timestamp             |
 
+#### budget_allocations
+
+| Column             | Type           | Constraints                        | Description                                         |
+| ------------------ | -------------- | ---------------------------------- | --------------------------------------------------- |
+| id                 | UUID           | PK, default gen_random_uuid()      | Unique identifier                                   |
+| household_id       | UUID           | NOT NULL, FK to households(id)     | Household owning this budget allocation             |
+| created_by_user_id | UUID           | NOT NULL, FK to auth.users(id)     | User who created the allocation                     |
+| category_id        | UUID           | NOT NULL, FK to categories(id)     | Category for which money is allocated               |
+| month              | DATE           | NOT NULL                           | Budget month (stored as YYYY-MM-01)                 |
+| allocated_amount   | NUMERIC(10, 2) | NOT NULL, DEFAULT 0                | Amount allocated to this category                   |
+| created_at         | TIMESTAMPTZ    | DEFAULT now()                      | Allocation creation timestamp                       |
+| updated_at         | TIMESTAMPTZ    | DEFAULT now()                      | Allocation last update timestamp                    |
+| UNIQUE             |                | (household_id, category_id, month) | Prevents duplicate category allocations for a month |
+
 ### Database Functions
 
 #### fn_get_account_balance(p_account_id UUID)
@@ -335,6 +349,80 @@ BEGIN
     AND user_id = auth.uid()
     AND role = 'owner'
   );
+END;
+$function$;
+```
+
+#### fn_get_category_available(p_household_id UUID, p_category_id UUID, p_month DATE)
+
+Calculates the amount of money remaining in a category's budget for a specific month.
+
+```sql
+CREATE OR REPLACE FUNCTION public.fn_get_category_available(p_household_id uuid, p_category_id uuid, p_month date)
+RETURNS numeric
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $function$
+DECLARE
+  v_allocated NUMERIC;
+  v_spent NUMERIC;
+  v_available NUMERIC;
+BEGIN
+  -- Get allocated amount
+  SELECT COALESCE(allocated_amount, 0) INTO v_allocated
+  FROM public.budget_allocations
+  WHERE household_id = p_household_id
+    AND category_id = p_category_id
+    AND month = DATE_TRUNC('month', p_month);
+
+  -- Get spent amount (only expenses, which are negative)
+  SELECT COALESCE(SUM(amount), 0) INTO v_spent
+  FROM public.transactions
+  WHERE household_id = p_household_id
+    AND category_id = p_category_id
+    AND status = 'completed'
+    AND amount < 0 -- Only count expenses
+    AND transaction_date >= DATE_TRUNC('month', p_month)
+    AND transaction_date < DATE_TRUNC('month', p_month) + INTERVAL '1 month';
+
+  -- Available = Allocated + Spent (since spent is negative)
+  v_available := v_allocated + v_spent;
+
+  RETURN v_available;
+END;
+$function$;
+```
+
+#### fn_get_available_to_budget(p_household_id UUID, p_month DATE)
+
+Calculates the total amount of money available to be budgeted (not yet allocated to categories).
+
+```sql
+CREATE OR REPLACE FUNCTION public.fn_get_available_to_budget(p_household_id uuid, p_month date)
+RETURNS numeric
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $function$
+DECLARE
+  v_total_balance NUMERIC;
+  v_total_allocated NUMERIC;
+  v_available NUMERIC;
+BEGIN
+  -- Get total balance across all accounts
+  SELECT COALESCE(SUM(fn_get_account_balance(id)), 0) INTO v_total_balance
+  FROM public.accounts
+  WHERE household_id = p_household_id;
+
+  -- Get total allocated across all categories for this month and previous months
+  SELECT COALESCE(SUM(allocated_amount), 0) INTO v_total_allocated
+  FROM public.budget_allocations
+  WHERE household_id = p_household_id
+    AND month <= DATE_TRUNC('month', p_month);
+
+  -- Available to budget = Total balance - Total allocated
+  v_available := v_total_balance - v_total_allocated;
+
+  RETURN v_available;
 END;
 $function$;
 ```

@@ -4,7 +4,7 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 
 ## Last Updated
 
-2025-05-04
+2025-05-10
 
 ## Implementation Status
 
@@ -53,12 +53,18 @@ This document tracks the progress of the MVP implementation for the Personal Bud
 | 5b.3                                                | Currency Symbol Selection                | Done        | User can choose preferred currency symbol                          |
 | 5b.4                                                | Symbol Position (before/after/none)      | Done        | User can choose where to display currency symbol                   |
 | 5b.5                                                | Number Formatting (comma/plain)          | Done        | User can choose number formatting style                            |
-| **Phase 6: Household Collaboration**                |
-| 6.1                                                 | Create Household Members Page            | Not Started |                                                                    |
-| 6.2                                                 | Implement Member Invitation              | Not Started |                                                                    |
-| 6.3                                                 | Implement Member Removal                 | Not Started |                                                                    |
-| 6.4                                                 | Add Creator Information to UI            | Not Started |                                                                    |
-| 6.5                                                 | Implement Basic Activity Log             | Not Started |                                                                    |
+| **Phase 6: YNAB-Style Budget Management**           |
+| 6.1                                                 | Create Budget Database Schema            | Not Started | Add budget_allocations table and functions                         |
+| 6.2                                                 | Implement Budget Management Page         | Not Started | Monthly view with allocation interface                             |
+| 6.3                                                 | Create Budget Allocation Interface       | Not Started | Assign available funds to category envelopes                       |
+| 6.4                                                 | Integrate with Transactions              | Not Started | Show budget status when adding transactions                        |
+| 6.5                                                 | Add Budget Progress Visualization        | Not Started | Show allocated vs. spent with visual indicators                    |
+| **Phase 7: Household Collaboration**                |
+| 7.1                                                 | Create Household Members Page            | Postponed   | Will be addressed after Budget Management                          |
+| 7.2                                                 | Implement Member Invitation              | Postponed   | Will be addressed after Budget Management                          |
+| 7.3                                                 | Implement Member Removal                 | Postponed   | Will be addressed after Budget Management                          |
+| 7.4                                                 | Add Creator Information to UI            | Postponed   | Will be addressed after Budget Management                          |
+| 7.5                                                 | Implement Basic Activity Log             | Postponed   | Will be addressed after Budget Management                          |
 
 ## MVP Architecture Changes
 
@@ -67,6 +73,7 @@ We've made the following architecture changes to simplify the MVP:
 1. **Household Approach**: Implemented a system where users can either join an existing household as a member or become the owner of a newly created household during registration.
 2. **Simplified User Onboarding**: During registration, users can choose to either join an existing household or create their own, providing flexibility while maintaining simplicity in the MVP.
 3. **Created `fn_ensure_user_in_household` function**: This new database function handles the logic of ensuring a user is part of a household by either joining an existing one or creating a new one if they choose to do so.
+4. **YNAB-Style Budgeting**: Added support for envelope-based budgeting following the YNAB philosophy, where users allocate available money to category envelopes and spend from these envelopes when making transactions.
 
 ## Test Data
 
@@ -100,4 +107,6 @@ A set of test data has been created to verify functionality:
 
 ## Next Steps
 
-- Continue with Phase 6 - Household Collaboration
+- Continue with Phase 6 - YNAB-Style Budget Management
+- Implement budget allocation interface
+- Integrate budget status with transaction creation
